@@ -1,0 +1,3789 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>周易雙法起卦 · 金錢卦與數字起卦</title>
+  <style>
+    /* ==========================================================================
+       東方雅緻書卷風格 · 設計變數與基礎重置（零外部依賴，離線順暢執行）
+       ========================================================================== */
+    :root {
+      --bg-paper: #F7F4EC;          /* 宣紙底色 */
+      --bg-card: #FCFBF7;           /* 箋紙白 */
+      --bg-subtle: #EFECE2;         /* 淡墨卷底 */
+      --ink-primary: #1F1C18;       /* 濃墨黑 */
+      --ink-secondary: #565047;     /* 淡墨褐 */
+      --ink-muted: #888073;         /* 淺褐灰 */
+      --cinnabar: #9E2A2B;          /* 硃砂印紅 */
+      --cinnabar-light: #FDF1F0;    /* 淺硃砂底 */
+      --cinnabar-border: #D98B8C;   /* 硃砂細線 */
+      --gold-accent: #A67C37;       /* 古銅金 */
+      --gold-light: #FBF7EE;        /* 淺金底 */
+      --bamboo: #3A6B5C;            /* 竹青 */
+      --bamboo-light: #EDF5F2;      /* 淺竹青底 */
+      --border-line: #D7D0C2;       /* 框線 */
+      --shadow-soft: 0 6px 24px rgba(31, 28, 24, 0.06);
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --font-serif: "Songti TC", "PMingLiU", "Noto Serif TC", "STSong", "SimSun", Georgia, serif;
+      --font-sans: -apple-system, BlinkMacSystemFont, "PingFang TC", "Microsoft JhengHei", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-paper);
+      background-image:
+        radial-gradient(rgba(166, 124, 55, 0.06) 1px, transparent 0),
+        radial-gradient(rgba(31, 28, 24, 0.04) 1px, transparent 0);
+      background-size: 24px 24px;
+      background-position: 0 0, 12px 12px;
+      color: var(--ink-primary);
+      font-family: var(--font-sans);
+      line-height: 1.65;
+      min-height: 100vh;
+    }
+
+    /* ==========================================================================
+       頂部導覽列
+       ========================================================================== */
+    header {
+      background: linear-gradient(180deg, #EDE7D9 0%, var(--bg-paper) 100%);
+      border-bottom: 1px solid var(--border-line);
+      padding: 16px;
+    }
+
+    .header-inner {
+      max-width: 980px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .taiji-icon {
+      width: 44px;
+      height: 44px;
+      flex-shrink: 0;
+      filter: drop-shadow(0 2px 5px rgba(31, 28, 24, 0.12));
+    }
+
+    .brand-title {
+      font-family: var(--font-serif);
+      font-size: 1.42rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: var(--ink-primary);
+      margin: 0;
+    }
+
+    .brand-subtitle {
+      font-size: 0.78rem;
+      color: var(--ink-secondary);
+      letter-spacing: 0.06em;
+      margin: 2px 0 0;
+    }
+
+    .history-toggle-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-line);
+      color: var(--ink-primary);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .history-toggle-btn:hover {
+      border-color: var(--cinnabar);
+      color: var(--cinnabar);
+    }
+
+    .badge-count {
+      background: var(--cinnabar);
+      color: #fff;
+      font-size: 0.72rem;
+      padding: 1px 7px;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 20px 16px 64px;
+    }
+
+    /* 書卷卡片容器 */
+    .scroll-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-line);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-soft);
+      padding: 22px;
+      margin-bottom: 22px;
+      position: relative;
+    }
+
+    .scroll-card::before {
+      content: "";
+      position: absolute;
+      inset: 5px;
+      border: 1px solid rgba(215, 208, 194, 0.55);
+      border-radius: calc(var(--radius-lg) - 4px);
+      pointer-events: none;
+    }
+
+    .section-heading {
+      font-family: var(--font-serif);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--ink-primary);
+      margin: 0 0 14px;
+      padding-bottom: 9px;
+      border-bottom: 1px dashed var(--border-line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      letter-spacing: 0.08em;
+    }
+
+    .seal-tag {
+      display: inline-block;
+      background: var(--cinnabar);
+      color: #fff;
+      font-family: var(--font-serif);
+      font-size: 0.76rem;
+      padding: 2px 7px;
+      border-radius: 3px;
+      letter-spacing: 0.1em;
+      font-weight: normal;
+      vertical-align: middle;
+      margin-right: 5px;
+    }
+
+    .ritual-tip {
+      font-size: 0.78rem;
+      color: var(--bamboo);
+      background: var(--bamboo-light);
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-family: var(--font-sans);
+      font-weight: 600;
+    }
+
+    /* ==========================================================================
+       所問事項與快速主題標籤
+       ========================================================================== */
+    .question-box {
+      margin-bottom: 18px;
+    }
+
+    .input-label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--ink-secondary);
+      margin-bottom: 6px;
+    }
+
+    .text-input {
+      width: 100%;
+      padding: 11px 14px;
+      font-size: 1rem;
+      font-family: inherit;
+      color: var(--ink-primary);
+      background: #fff;
+      border: 1px solid var(--border-line);
+      border-radius: var(--radius-md);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .text-input:focus {
+      border-color: var(--cinnabar);
+      box-shadow: 0 0 0 3px rgba(158, 42, 43, 0.1);
+    }
+
+    .quick-topics {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 9px;
+    }
+
+    .quick-topic-label {
+      font-size: 0.78rem;
+      color: var(--ink-muted);
+    }
+
+    .topic-chip {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-line);
+      color: var(--ink-secondary);
+      font-size: 0.78rem;
+      padding: 4px 11px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .topic-chip:hover {
+      border-color: var(--gold-accent);
+      color: var(--ink-primary);
+      background: var(--gold-light);
+    }
+
+    .topic-chip.active {
+      background: var(--bamboo);
+      border-color: var(--bamboo);
+      color: #fff;
+      font-weight: 600;
+    }
+
+    /* ==========================================================================
+       雙起卦模式切換頁籤 (Mode Tabs)
+       ========================================================================== */
+    .mode-switcher {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      background: var(--bg-subtle);
+      padding: 6px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-line);
+      margin-bottom: 18px;
+    }
+
+    .mode-tab-btn {
+      padding: 11px 12px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--ink-secondary);
+      font-family: var(--font-serif);
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      transition: all 0.2s ease;
+    }
+
+    .mode-tab-btn span.mode-sub {
+      font-family: var(--font-sans);
+      font-size: 0.73rem;
+      font-weight: 500;
+      opacity: 0.85;
+    }
+
+    .mode-tab-btn.active {
+      background: var(--bg-card);
+      color: var(--cinnabar);
+      border-color: var(--cinnabar-border);
+      box-shadow: 0 2px 8px rgba(31, 28, 24, 0.08);
+    }
+
+    .mode-panel {
+      display: none;
+    }
+
+    .mode-panel.active {
+      display: block;
+      animation: fadeIn 0.25s ease;
+    }
+
+    /* ==========================================================================
+       模式 A：三枚銅錢法（金錢卦）占卜台
+       ========================================================================== */
+    .casting-stage-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 18px;
+      align-items: stretch;
+      margin-bottom: 16px;
+    }
+
+    .coin-altar {
+      background: radial-gradient(circle at center, #F5EFE1 0%, #EAE1CE 100%);
+      border: 1px solid #D3C5AA;
+      border-radius: var(--radius-md);
+      padding: 18px 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 245px;
+    }
+
+    .step-indicator {
+      font-family: var(--font-serif);
+      font-size: 0.94rem;
+      font-weight: 700;
+      color: #6B4E1E;
+      background: rgba(255, 255, 255, 0.78);
+      padding: 4px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(166, 124, 55, 0.35);
+      letter-spacing: 0.05em;
+      text-align: center;
+    }
+
+    .coins-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 18px;
+      margin: 18px 0;
+      perspective: 900px;
+    }
+
+    .coin-wrapper {
+      width: 78px;
+      height: 78px;
+      position: relative;
+      transform-style: preserve-3d;
+    }
+
+    .coin-wrapper.flipping {
+      animation: coinToss 0.6s ease-in-out;
+    }
+
+    @keyframes coinToss {
+      0% { transform: translateY(0) rotateY(0deg) rotateX(0deg) scale(1); }
+      45% { transform: translateY(-32px) rotateY(540deg) rotateX(180deg) scale(1.12); }
+      100% { transform: translateY(0) rotateY(1080deg) rotateX(360deg) scale(1); }
+    }
+
+    .coin-face {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      box-shadow:
+        0 6px 14px rgba(45, 32, 12, 0.26),
+        inset 0 2px 4px rgba(255, 245, 210, 0.65),
+        inset 0 -3px 6px rgba(62, 42, 12, 0.65);
+      border: 3px solid #8A6627;
+      user-select: none;
+    }
+
+    .coin-face.is-yang {
+      background: radial-gradient(circle at 32% 30%, #F4D97E 0%, #C79738 58%, #8C641C 100%);
+      color: #3D2807;
+    }
+
+    .coin-face.is-yin {
+      background: radial-gradient(circle at 32% 30%, #B69355 0%, #7C5C26 60%, #4C3511 100%);
+      color: #F7E6BE;
+    }
+
+    .coin-square-hole {
+      width: 22px;
+      height: 22px;
+      background: #EAE1CE;
+      border: 2px solid #6B4E1E;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--ink-secondary);
+    }
+
+    .coin-char {
+      position: absolute;
+      font-family: var(--font-serif);
+      font-weight: 700;
+      font-size: 0.84rem;
+      line-height: 1;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+    }
+    .coin-char.top { top: 6px; left: 50%; transform: translateX(-50%); }
+    .coin-char.bottom { bottom: 6px; left: 50%; transform: translateX(-50%); }
+    .coin-char.right { right: 6px; top: 50%; transform: translateY(-50%); }
+    .coin-char.left { left: 6px; top: 50%; transform: translateY(-50%); }
+
+    .coin-readout {
+      text-align: center;
+      font-size: 0.86rem;
+      color: var(--ink-primary);
+      background: rgba(255, 255, 255, 0.85);
+      padding: 7px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(215, 208, 194, 0.9);
+      width: 100%;
+    }
+
+    .coin-readout strong {
+      color: var(--cinnabar);
+    }
+
+    /* 即時六爻演進槽 */
+    .live-yao-board {
+      background: #fff;
+      border: 1px solid var(--border-line);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .live-board-title {
+      font-family: var(--font-serif);
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--ink-secondary);
+      text-align: center;
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--bg-subtle);
+    }
+
+    .live-yao-slots {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .live-slot {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      height: 30px;
+      padding: 0 8px;
+      border-radius: 6px;
+      background: var(--bg-paper);
+      border: 1px dashed var(--border-line);
+      font-size: 0.8rem;
+    }
+
+    .live-slot.filled {
+      border-style: solid;
+      border-color: #D7D0C2;
+      background: var(--bg-card);
+    }
+
+    .live-slot.filled.is-moving {
+      background: var(--cinnabar-light);
+      border-color: var(--cinnabar-border);
+    }
+
+    .live-slot.is-next {
+      border-color: var(--gold-accent);
+      background: var(--gold-light);
+    }
+
+    .slot-pos {
+      width: 34px;
+      font-family: var(--font-serif);
+      font-weight: 700;
+      color: var(--ink-secondary);
+      flex-shrink: 0;
+    }
+
+    .slot-bar-area {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 10px;
+    }
+
+    .slot-placeholder {
+      width: 100%;
+      text-align: center;
+      font-size: 0.74rem;
+      color: var(--ink-muted);
+    }
+
+    .slot-info {
+      width: 74px;
+      text-align: right;
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: var(--ink-secondary);
+      flex-shrink: 0;
+    }
+
+    .live-slot.is-moving .slot-info {
+      color: var(--cinnabar);
+    }
+
+    /* ==========================================================================
+       模式 B：先天數字起卦法輸入網格
+       ========================================================================== */
+    .numbers-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .num-field {
+      background: var(--bg-subtle);
+      padding: 14px 12px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-line);
+      text-align: center;
+    }
+
+    .num-field label {
+      display: block;
+      font-family: var(--font-serif);
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--ink-primary);
+      margin-bottom: 2px;
+    }
+
+    .num-field span.num-rule {
+      display: block;
+      font-size: 0.74rem;
+      color: var(--ink-muted);
+      margin-bottom: 8px;
+    }
+
+    .num-input {
+      width: 100%;
+      text-align: center;
+      font-size: 1.38rem;
+      font-weight: 700;
+      font-family: var(--font-serif);
+      padding: 9px 4px;
+      border: 1px solid var(--border-line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink-primary);
+      outline: none;
+      -moz-appearance: textfield;
+    }
+
+    .num-input::-webkit-outer-spin-button,
+    .num-input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .num-input:focus {
+      border-color: var(--cinnabar);
+      box-shadow: 0 0 0 3px rgba(158, 42, 43, 0.12);
+    }
+
+    .live-num-preview {
+      background: var(--gold-light);
+      border: 1px dashed #D6BE8A;
+      border-radius: 8px;
+      padding: 9px 14px;
+      margin-bottom: 16px;
+      font-size: 0.84rem;
+      color: var(--ink-secondary);
+      text-align: center;
+    }
+
+    .live-num-preview strong {
+      color: var(--cinnabar);
+      font-family: var(--font-serif);
+    }
+
+    /* ==========================================================================
+       通用操作按鈕與提示框
+       ========================================================================== */
+    .action-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      flex: 1;
+      min-width: 130px;
+      padding: 12px 16px;
+      font-size: 0.96rem;
+      font-weight: 600;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: transform 0.12s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      letter-spacing: 0.05em;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-primary {
+      flex: 2;
+      background: var(--cinnabar);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(158, 42, 43, 0.24);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #852223;
+    }
+
+    .btn-gold {
+      background: var(--gold-light);
+      color: #6B4E1E;
+      border-color: #D6BE8A;
+    }
+
+    .btn-gold:hover:not(:disabled) {
+      background: #F3E8CF;
+    }
+
+    .btn-secondary {
+      background: var(--bg-subtle);
+      color: var(--ink-primary);
+      border-color: var(--border-line);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: #E4DEC9;
+    }
+
+    .toast-box {
+      display: none;
+      margin-top: 12px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      background: var(--cinnabar-light);
+      border: 1px solid var(--cinnabar-border);
+      color: var(--cinnabar);
+      font-size: 0.88rem;
+      text-align: center;
+    }
+
+    .toast-box.show {
+      display: block;
+      animation: fadeIn 0.25s ease;
+    }
+
+    /* ==========================================================================
+       解卦結果區
+       ========================================================================== */
+    #result-section {
+      display: none;
+    }
+
+    #result-section.visible {
+      display: block;
+      animation: slideUp 0.4s ease;
+    }
+
+    .method-pill {
+      display: inline-block;
+      background: var(--bamboo-light);
+      color: var(--bamboo);
+      border: 1px solid rgba(58, 107, 92, 0.35);
+      font-family: var(--font-sans);
+      font-size: 0.76rem;
+      font-weight: 700;
+      padding: 2px 9px;
+      border-radius: 999px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
+    /* 朱熹《易學啟蒙》斷卦指引橫幅 */
+    .rule-banner {
+      background: linear-gradient(135deg, var(--cinnabar-light) 0%, #FFF9F8 100%);
+      border: 1px solid var(--cinnabar-border);
+      border-left: 5px solid var(--cinnabar);
+      border-radius: var(--radius-md);
+      padding: 16px 18px;
+      margin-bottom: 20px;
+    }
+
+    .rule-banner-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .rule-title {
+      font-family: var(--font-serif);
+      font-weight: 700;
+      font-size: 1.02rem;
+      color: var(--cinnabar);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .calc-meta {
+      font-size: 0.78rem;
+      color: var(--ink-secondary);
+      background: rgba(255, 255, 255, 0.82);
+      padding: 2px 9px;
+      border-radius: 4px;
+      border: 1px solid rgba(217, 139, 140, 0.45);
+    }
+
+    .rule-summary-text {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--ink-primary);
+      margin: 4px 0 10px;
+    }
+
+    .quotes-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .highlighted-quote-box {
+      background: #fff;
+      border: 1px solid var(--cinnabar-border);
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+
+    .highlighted-quote-box.is-secondary {
+      border-color: #D8BE86;
+      background: #FFFDF7;
+    }
+
+    .quote-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--cinnabar);
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .highlighted-quote-box.is-secondary .quote-label {
+      color: var(--gold-accent);
+    }
+
+    .quote-original {
+      font-family: var(--font-serif);
+      font-size: 1.12rem;
+      font-weight: 700;
+      color: var(--ink-primary);
+      margin: 0 0 6px;
+    }
+
+    .quote-hint {
+      font-size: 0.88rem;
+      color: var(--ink-secondary);
+      margin: 0;
+    }
+
+    /* 針對所問事項之白話行動建議卡片 */
+    .advice-card {
+      background: linear-gradient(180deg, #FFFDF8 0%, var(--gold-light) 100%);
+      border: 1px solid #D8BE86;
+      border-left: 5px solid var(--gold-accent);
+      border-radius: var(--radius-md);
+      padding: 18px 20px;
+      margin-bottom: 22px;
+      box-shadow: 0 3px 14px rgba(166, 124, 55, 0.08);
+    }
+
+    .advice-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding-bottom: 10px;
+      margin-bottom: 14px;
+      border-bottom: 1px dashed #D8BE86;
+    }
+
+    .advice-title {
+      font-family: var(--font-serif);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #7A5C24;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .advice-domain-tag {
+      font-family: var(--font-sans);
+      font-size: 0.76rem;
+      font-weight: 600;
+      background: #7A5C24;
+      color: #fff;
+      padding: 2px 10px;
+      border-radius: 999px;
+      letter-spacing: 0.05em;
+    }
+
+    .advice-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .advice-block {
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid rgba(216, 190, 134, 0.65);
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+
+    .advice-block.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .advice-block-title {
+      font-family: var(--font-serif);
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--cinnabar);
+      margin: 0 0 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .fortune-badge {
+      font-family: var(--font-sans);
+      font-size: 0.72rem;
+      padding: 1px 8px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+
+    .fortune-auspicious { background: #E6F4EA; color: #1E7E34; border: 1px solid #B7DFBF; }
+    .fortune-caution { background: #FEF7E0; color: #9A6700; border: 1px solid #F2D98D; }
+    .fortune-warning { background: #FCE8E6; color: #9E2A2B; border: 1px solid #F1B5AF; }
+
+    .advice-text {
+      font-size: 0.92rem;
+      color: var(--ink-primary);
+      margin: 0;
+      line-height: 1.65;
+    }
+
+    .action-steps-list {
+      margin: 6px 0 0;
+      padding-left: 1.25rem;
+      font-size: 0.92rem;
+      color: var(--ink-primary);
+    }
+
+    .action-steps-list li {
+      margin-bottom: 6px;
+      line-height: 1.6;
+    }
+
+    .action-steps-list li:last-child {
+      margin-bottom: 0;
+    }
+
+    .copy-report-bar {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .btn-copy-report {
+      background: #fff;
+      border: 1px solid #C9AD74;
+      color: #7A5C24;
+      padding: 7px 14px;
+      border-radius: 6px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s;
+    }
+
+    .btn-copy-report:hover {
+      background: #7A5C24;
+      color: #fff;
+    }
+
+    .copy-status {
+      font-size: 0.82rem;
+      color: var(--bamboo);
+      font-weight: 600;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .copy-status.show {
+      opacity: 1;
+    }
+
+    /* 本卦與之卦並排網格 */
+    .hexagrams-compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-bottom: 22px;
+    }
+
+    .hex-panel {
+      background: #fff;
+      border: 1px solid var(--border-line);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hex-panel-header {
+      text-align: center;
+      border-bottom: 1px solid var(--bg-subtle);
+      padding-bottom: 12px;
+      margin-bottom: 14px;
+    }
+
+    .hex-role {
+      font-size: 0.75rem;
+      color: var(--ink-muted);
+      letter-spacing: 0.1em;
+    }
+
+    .hex-name {
+      font-family: var(--font-serif);
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--ink-primary);
+      margin: 4px 0 2px;
+    }
+
+    .hex-trigrams {
+      font-size: 0.82rem;
+      color: var(--ink-secondary);
+    }
+
+    .yao-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      margin: 6px 0 14px;
+    }
+
+    .yao-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 8px;
+      border-radius: 6px;
+      background: var(--bg-paper);
+      border: 1px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .yao-row.is-moving {
+      background: var(--cinnabar-light);
+      border-color: var(--cinnabar-border);
+    }
+
+    .yao-pos-label {
+      width: 38px;
+      font-family: var(--font-serif);
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--ink-secondary);
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .yao-row.is-moving .yao-pos-label {
+      color: var(--cinnabar);
+    }
+
+    .yao-graphic {
+      flex: 1;
+      height: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .yao-yang-bar {
+      width: 100%;
+      height: 11px;
+      background: var(--ink-primary);
+      border-radius: 2px;
+    }
+
+    .yao-row.is-moving .yao-yang-bar {
+      background: var(--cinnabar);
+    }
+
+    .yao-yin-part {
+      width: 44%;
+      height: 11px;
+      background: var(--ink-primary);
+      border-radius: 2px;
+    }
+
+    .yao-row.is-moving .yao-yin-part {
+      background: var(--cinnabar);
+    }
+
+    .yao-mark {
+      width: 72px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      text-align: left;
+      flex-shrink: 0;
+      color: var(--ink-muted);
+    }
+
+    .yao-row.is-moving .yao-mark {
+      color: var(--cinnabar);
+    }
+
+    .hex-texts {
+      background: var(--bg-paper);
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 0.88rem;
+      margin-top: auto;
+    }
+
+    .hex-texts.target-highlight {
+      background: var(--gold-light);
+      border: 1px solid #D8BE86;
+    }
+
+    .hex-text-item {
+      margin-bottom: 8px;
+    }
+
+    .hex-text-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .hex-text-tag {
+      display: inline-block;
+      font-family: var(--font-serif);
+      font-weight: 700;
+      color: var(--gold-accent);
+      margin-right: 4px;
+    }
+
+    /* 全卦六爻詳解列表 */
+    .all-lines-card {
+      background: #fff;
+      border: 1px solid var(--border-line);
+      border-radius: var(--radius-md);
+      padding: 18px;
+    }
+
+    .tabs-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      border-bottom: 1px solid var(--border-line);
+      padding-bottom: 10px;
+    }
+
+    .tab-btn {
+      padding: 6px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--border-line);
+      background: var(--bg-paper);
+      color: var(--ink-secondary);
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .tab-btn.active {
+      background: var(--ink-primary);
+      color: #fff;
+      border-color: var(--ink-primary);
+    }
+
+    .line-detail-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .line-detail-item {
+      padding: 12px 14px;
+      border-radius: 8px;
+      background: var(--bg-paper);
+      border: 1px solid transparent;
+      font-family: var(--font-serif);
+      font-size: 0.98rem;
+      line-height: 1.6;
+    }
+
+    .line-detail-item.is-target-primary {
+      background: var(--cinnabar-light);
+      border-color: var(--cinnabar-border);
+      box-shadow: 0 2px 8px rgba(158, 42, 43, 0.08);
+    }
+
+    .line-detail-item.is-target-secondary {
+      background: var(--gold-light);
+      border-color: #D8BE86;
+    }
+
+    .line-pill {
+      display: inline-block;
+      font-family: var(--font-sans);
+      font-size: 0.72rem;
+      padding: 1px 7px;
+      border-radius: 4px;
+      margin-left: 8px;
+      vertical-align: middle;
+      font-weight: 600;
+    }
+
+    .pill-primary {
+      background: var(--cinnabar);
+      color: #fff;
+    }
+
+    .pill-secondary {
+      background: var(--gold-accent);
+      color: #fff;
+    }
+
+    .pill-moving {
+      background: #E5DEC9;
+      color: var(--ink-primary);
+    }
+
+    /* ==========================================================================
+       歷史紀錄側邊抽屜
+       ========================================================================== */
+    .drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(31, 28, 24, 0.45);
+      z-index: 90;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+
+    .drawer-backdrop.open {
+      display: block;
+      opacity: 1;
+    }
+
+    .history-drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      max-width: 410px;
+      background: var(--bg-paper);
+      z-index: 100;
+      box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
+      transform: translateX(100%);
+      transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .history-drawer.open {
+      transform: translateX(0);
+    }
+
+    .drawer-header {
+      padding: 18px 20px;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border-line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .drawer-title {
+      font-family: var(--font-serif);
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .close-drawer-btn {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      line-height: 1;
+      color: var(--ink-secondary);
+      cursor: pointer;
+      padding: 4px 8px;
+    }
+
+    .drawer-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .history-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-line);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: border-color 0.2s, transform 0.15s;
+    }
+
+    .history-item:hover {
+      border-color: var(--cinnabar);
+      transform: translateY(-1px);
+    }
+
+    .history-item-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.75rem;
+      color: var(--ink-muted);
+      margin-bottom: 4px;
+    }
+
+    .history-method-tag {
+      background: var(--bamboo-light);
+      color: var(--bamboo);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .history-question {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--ink-primary);
+      margin-bottom: 6px;
+      word-break: break-word;
+    }
+
+    .history-hex-summary {
+      font-family: var(--font-serif);
+      font-size: 0.88rem;
+      color: var(--cinnabar);
+      font-weight: 600;
+    }
+
+    .drawer-footer {
+      padding: 14px 20px;
+      border-top: 1px solid var(--border-line);
+      background: var(--bg-card);
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .btn-drawer-action {
+      background: transparent;
+      border: 1px solid var(--border-line);
+      color: var(--ink-secondary);
+      padding: 7px 12px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      cursor: pointer;
+    }
+
+    .btn-drawer-action:hover {
+      border-color: var(--gold-accent);
+      color: var(--ink-primary);
+    }
+
+    .btn-clear-history {
+      background: transparent;
+      border: 1px solid var(--cinnabar-border);
+      color: var(--cinnabar);
+      padding: 7px 12px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      cursor: pointer;
+    }
+
+    .btn-clear-history:hover {
+      background: var(--cinnabar-light);
+    }
+
+    .empty-history {
+      text-align: center;
+      padding: 48px 16px;
+      color: var(--ink-muted);
+      font-size: 0.9rem;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 手機與平板響應式微調 */
+    @media (max-width: 720px) {
+      .casting-stage-grid,
+      .hexagrams-compare,
+      .advice-grid {
+        grid-template-columns: 1fr;
+      }
+      .brand-title {
+        font-size: 1.2rem;
+      }
+      .scroll-card {
+        padding: 16px;
+      }
+      .coin-wrapper {
+        width: 70px;
+        height: 70px;
+      }
+      .coins-row {
+        gap: 14px;
+      }
+      .numbers-grid {
+        gap: 8px;
+      }
+      .num-field {
+        padding: 10px 6px;
+      }
+      .num-input {
+        font-size: 1.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 頂部導覽列 -->
+  <header>
+    <div class="header-inner">
+      <div class="brand">
+        <svg class="taiji-icon" viewBox="0 0 100 100" aria-hidden="true">
+          <circle cx="50" cy="50" r="47" fill="#FCFBF7" stroke="#1F1C18" stroke-width="4"/>
+          <path d="M50,3 A47,47 0 0,1 50,97 A23.5,23.5 0 0,1 50,50 A23.5,23.5 0 0,0 50,3 Z" fill="#1F1C18"/>
+          <circle cx="50" cy="26.5" r="7" fill="#1F1C18"/>
+          <circle cx="50" cy="73.5" r="7" fill="#FCFBF7"/>
+        </svg>
+        <div>
+          <h1 class="brand-title">周易雙法起卦 · 觀象玩辭</h1>
+          <p class="brand-subtitle">三枚銅錢法 × 先天數字起卦 · 朱熹《易學啟蒙》斷法</p>
+        </div>
+      </div>
+
+      <button type="button" class="history-toggle-btn" id="openHistoryBtn">
+        <span>卜卦紀錄</span>
+        <span class="badge-count" id="historyCountBadge">0</span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <!-- 第一區：所問事項與雙起卦模式控制台 -->
+    <section class="scroll-card" aria-label="起卦控制台">
+      <h2 class="section-heading">
+        <span><span class="seal-tag">問占</span> 誠心默念所問之事，擇一起卦方式</span>
+        <span class="ritual-tip">無疑不卜 · 一事一占</span>
+      </h2>
+
+      <!-- 所問事項與快速主題標籤 -->
+      <div class="question-box">
+        <label class="input-label" for="questionInput">所問事項（建議具體描述情境，系統將自動辨識領域並提供白話建議）</label>
+        <input 
+          type="text" 
+          id="questionInput" 
+          class="text-input" 
+          placeholder="例如：今年轉換工作跑道是否合適？或某項投資計畫該如何推進？" 
+          maxlength="80"
+        />
+        <div class="quick-topics" id="quickTopicsBar">
+          <span class="quick-topic-label">快速情境：</span>
+          <button type="button" class="topic-chip" data-template="近期工作與事業發展方向如何？">事業發展</button>
+          <button type="button" class="topic-chip" data-template="這項財務規劃與投資決策是否適宜？">財運投資</button>
+          <button type="button" class="topic-chip" data-template="目前感情關係與人際互動該如何應對？">感情人際</button>
+          <button type="button" class="topic-chip" data-template="近期學業進修與考試準備狀態如何？">學業考試</button>
+          <button type="button" class="topic-chip" data-template="近期身心健康與生活節奏該如何調養？">健康生活</button>
+          <button type="button" class="topic-chip" data-template="面對眼前的重大抉擇，應採取何種策略？">抉擇方向</button>
+        </div>
+      </div>
+
+      <!-- 起卦方式切換頁籤 (Mode Tabs) -->
+      <div class="mode-switcher" role="tablist" aria-label="起卦方式切換">
+        <button type="button" class="mode-tab-btn active" role="tab" aria-selected="true" id="tabModeCoins" data-mode="coins">
+          <span>🪙 模式一：三枚銅錢法（金錢卦）</span>
+          <span class="mode-sub">六擲成卦 · 可產生 0 至 6 個動爻</span>
+        </button>
+        <button type="button" class="mode-tab-btn" role="tab" aria-selected="false" id="tabModeNumbers" data-mode="numbers">
+          <span>🔢 模式二：先天數字起卦法</span>
+          <span class="mode-sub">輸入三組正整數 · 餘數成卦與單一動爻</span>
+        </button>
+      </div>
+
+      <!-- 模式 A 面板：三枚銅錢法 -->
+      <div class="mode-panel active" id="panelModeCoins" role="tabpanel">
+        <div class="casting-stage-grid">
+          <div class="coin-altar">
+            <div class="step-indicator" id="castStepText">準備就緒 · 誠心默念後開始第 1 擲（初爻）</div>
+
+            <div class="coins-row" id="coinsRow">
+              <div class="coin-wrapper" id="coin0"></div>
+              <div class="coin-wrapper" id="coin1"></div>
+              <div class="coin-wrapper" id="coin2"></div>
+            </div>
+
+            <div class="coin-readout" id="coinReadout">
+              正面「字」= <strong>3</strong>（陽）· 反面「花」= <strong>2</strong>（陰）｜總和：<strong>6</strong>老陰(×動) <strong>7</strong>少陽 <strong>8</strong>少陰 <strong>9</strong>老陽(○動)
+            </div>
+          </div>
+
+          <div class="live-yao-board">
+            <div class="live-board-title">本卦即時爻象（自初爻而上）</div>
+            <div class="live-yao-slots" id="liveYaoSlots"></div>
+          </div>
+        </div>
+
+        <div class="action-bar">
+          <button type="button" class="btn btn-primary" id="tossOnceBtn">
+            <span>🪙 擲出初爻（第 1 擲）</span>
+          </button>
+          <button type="button" class="btn btn-gold" id="quickCastBtn">
+            <span>⚡ 一鍵完成六擲</span>
+          </button>
+          <button type="button" class="btn btn-secondary" id="resetCastBtn">
+            <span>↺ 重新起卦</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 模式 B 面板：先天數字起卦法 -->
+      <div class="mode-panel" id="panelModeNumbers" role="tabpanel">
+        <div class="numbers-grid">
+          <div class="num-field">
+            <label for="num1">第一數（求下卦）</label>
+            <span class="num-rule">除 8 取餘 · 內卦（整除為 8 坤）</span>
+            <input type="number" id="num1" class="num-input" inputmode="numeric" pattern="[0-9]*" placeholder="如 258" min="1" max="999999" />
+          </div>
+          <div class="num-field">
+            <label for="num2">第二數（求上卦）</label>
+            <span class="num-rule">除 8 取餘 · 外卦（整除為 8 坤）</span>
+            <input type="number" id="num2" class="num-input" inputmode="numeric" pattern="[0-9]*" placeholder="如 419" min="1" max="999999" />
+          </div>
+          <div class="num-field">
+            <label for="num3">第三數（求動爻）</label>
+            <span class="num-rule">除 6 取餘 · 變爻（整除為 6 上爻）</span>
+            <input type="number" id="num3" class="num-input" inputmode="numeric" pattern="[0-9]*" placeholder="如 735" min="1" max="999999" />
+          </div>
+        </div>
+
+        <div class="live-num-preview" id="liveNumPreview">
+          先天八卦序：1乾(☰) · 2兌(☱) · 3離(☲) · 4震(☳) · 5巽(☴) · 6坎(☵) · 7艮(☶) · 8坤(☷)
+        </div>
+
+        <div class="action-bar">
+          <button type="button" class="btn btn-gold" id="randomNumBtn">
+            <span>🎲 隨機靈感取數</span>
+          </button>
+          <button type="button" class="btn btn-primary" id="divinateNumBtn">
+            <span>☯ 依數起卦</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="toast-box" id="toastBox" role="alert"></div>
+    </section>
+
+    <!-- 第二區：解卦結果與視覺化呈現 -->
+    <section id="result-section" aria-label="解卦結果區">
+      <div class="scroll-card">
+        <h2 class="section-heading">
+          <span>
+            <span class="seal-tag">斷卦</span> 卦象推演與朱熹《易學啟蒙》斷辭
+            <span class="method-pill" id="resultMethodPill">三枚銅錢法</span>
+          </span>
+          <span id="resultQuestionTag" style="font-size: 0.85rem; color: var(--ink-secondary); font-family: var(--font-sans); font-weight: normal;"></span>
+        </h2>
+
+        <!-- 朱熹斷卦指引橫幅 -->
+        <div class="rule-banner">
+          <div class="rule-banner-header">
+            <div class="rule-title">📜 朱熹《易學啟蒙》斷卦指引</div>
+            <div class="calc-meta" id="calcFormulaText"></div>
+          </div>
+          <div class="rule-summary-text" id="ruleSummaryText"></div>
+          <div class="quotes-stack" id="quotesStack"></div>
+        </div>
+
+        <!-- 針對所問事項之白話行動建議卡片 -->
+        <div class="advice-card" id="adviceCard" aria-label="針對所問事項之白話建議">
+          <div class="advice-header">
+            <div class="advice-title">
+              <span>🧭 針對所問事項 · 易理白話行動建議</span>
+            </div>
+            <span class="advice-domain-tag" id="adviceDomainTag">決策與整體運勢</span>
+          </div>
+
+          <div class="advice-grid">
+            <div class="advice-block">
+              <div class="advice-block-title">
+                <span>【局勢定調】</span>
+                <span class="fortune-badge fortune-caution" id="adviceFortuneBadge">審慎推進</span>
+              </div>
+              <p class="advice-text" id="adviceSituationText"></p>
+            </div>
+
+            <div class="advice-block">
+              <div class="advice-block-title">
+                <span id="adviceYaoTitle">【核心斷辭與動爻啟示】</span>
+              </div>
+              <p class="advice-text" id="adviceYaoInsightText"></p>
+            </div>
+
+            <div class="advice-block full-width">
+              <div class="advice-block-title">
+                <span id="adviceActionTitle">【針對所問事項之具體建議】</span>
+              </div>
+              <ol class="action-steps-list" id="adviceActionSteps"></ol>
+            </div>
+
+            <div class="advice-block full-width">
+              <div class="advice-block-title">
+                <span>【變卦發展趨勢提醒】</span>
+              </div>
+              <p class="advice-text" id="adviceTrendText"></p>
+            </div>
+          </div>
+
+          <div class="copy-report-bar">
+            <span class="copy-status" id="copyStatusText">已複製完整解卦報告！</span>
+            <button type="button" class="btn-copy-report" id="copyReportBtn">
+              <span>📋 複製完整解卦與建議</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 本卦與之卦（變卦）並排視覺圖 -->
+        <div class="hexagrams-compare">
+          <!-- 本卦面板 -->
+          <div class="hex-panel" id="originalHexPanel">
+            <div class="hex-panel-header">
+              <div class="hex-role">本卦（當前現狀與根基）</div>
+              <div class="hex-name" id="origHexName">—</div>
+              <div class="hex-trigrams" id="origHexTrigrams">—</div>
+            </div>
+            <div class="yao-stack" id="origYaoStack"></div>
+            <div class="hex-texts" id="origHexTexts">
+              <div class="hex-text-item"><span class="hex-text-tag">【卦辭】</span><span id="origJudgement"></span></div>
+              <div class="hex-text-item"><span class="hex-text-tag">【大象】</span><span id="origImage"></span></div>
+              <div class="hex-text-item"><span class="hex-text-tag">【白話】</span><span id="origSummary" style="color: var(--ink-secondary);"></span></div>
+            </div>
+          </div>
+
+          <!-- 之卦（變卦）面板 -->
+          <div class="hex-panel" id="changedHexPanel">
+            <div class="hex-panel-header">
+              <div class="hex-role" id="chgHexRoleLabel">之卦 / 變卦（未來趨勢與演變）</div>
+              <div class="hex-name" id="chgHexName">—</div>
+              <div class="hex-trigrams" id="chgHexTrigrams">—</div>
+            </div>
+            <div class="yao-stack" id="chgYaoStack"></div>
+            <div class="hex-texts" id="chgHexTexts">
+              <div class="hex-text-item"><span class="hex-text-tag">【卦辭】</span><span id="chgJudgement"></span></div>
+              <div class="hex-text-item"><span class="hex-text-tag">【大象】</span><span id="chgImage"></span></div>
+              <div class="hex-text-item"><span class="hex-text-tag">【白話】</span><span id="chgSummary" style="color: var(--ink-secondary);"></span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 全卦六爻辭詳細對照表 -->
+        <div class="all-lines-card">
+          <div class="tabs-bar">
+            <button type="button" class="tab-btn active" data-tab="original" id="tabOrigBtn">本卦六爻辭</button>
+            <button type="button" class="tab-btn" data-tab="changed" id="tabChgBtn">之卦六爻辭</button>
+          </div>
+          <ul class="line-detail-list" id="lineDetailList"></ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 歷史紀錄側邊抽屜 -->
+  <div class="drawer-backdrop" id="drawerBackdrop"></div>
+  <aside class="history-drawer" id="historyDrawer" aria-label="卜卦歷史紀錄">
+    <div class="drawer-header">
+      <h3 class="drawer-title">歷史卜卦紀錄</h3>
+      <button type="button" class="close-drawer-btn" id="closeHistoryBtn" aria-label="關閉">&times;</button>
+    </div>
+    <div class="drawer-body" id="historyListContainer"></div>
+    <div class="drawer-footer">
+      <button type="button" class="btn-drawer-action" id="exportHistoryBtn">📤 匯出全部紀錄</button>
+      <button type="button" class="btn-clear-history" id="clearHistoryBtn">清空所有紀錄</button>
+    </div>
+  </aside>
+
+  <script>
+    /**
+     * ============================================================================
+     * 一、先天八卦對照表（二進位由下往上排列：第1碼初爻，第3碼上爻）
+     * ============================================================================
+     */
+    const TRIGRAMS_BY_INDEX = {
+      1: { index: 1, name: '乾', nature: '天', symbol: '☰', binary: '111' },
+      2: { index: 2, name: '兌', nature: '澤', symbol: '☱', binary: '110' },
+      3: { index: 3, name: '離', nature: '火', symbol: '☲', binary: '101' },
+      4: { index: 4, name: '震', nature: '雷', symbol: '☳', binary: '100' },
+      5: { index: 5, name: '巽', nature: '風', symbol: '☴', binary: '011' },
+      6: { index: 6, name: '坎', nature: '水', symbol: '☵', binary: '010' },
+      7: { index: 7, name: '艮', nature: '山', symbol: '☶', binary: '001' },
+      8: { index: 8, name: '坤', nature: '地', symbol: '☷', binary: '000' }
+    };
+
+    const TRIGRAMS_BY_BINARY = Object.values(TRIGRAMS_BY_INDEX).reduce((acc, item) => {
+      acc[item.binary] = item;
+      return acc;
+    }, {});
+
+    /**
+     * ============================================================================
+     * 二、完整《周易》64 卦繁體中文原文資料庫（包含全部 384 條爻辭與乾坤用九/用六）
+     * 主鍵為由下往上 6 位元二進位字串（初爻在左，上爻在右）
+     * ============================================================================
+     */
+    const ICHING_64 = {
+      "111111": {
+        no: 1, name: "乾為天", trigrams: "乾上乾下",
+        judgement: "元，亨，利，貞。",
+        image: "天行健，君子以自強不息。",
+        summary: "純陽剛健，大通而利於正固。時運極旺，宜自強不息、積極進取，但盛極須防亢悔。",
+        yong: "用九：見群龍無首，吉。",
+        lines: [
+          "初九：潛龍勿用。",
+          "九二：見龍在田，利見大人。",
+          "九三：君子終日乾乾，夕惕若，厲，無咎。",
+          "九四：或躍在淵，無咎。",
+          "九五：飛龍在天，利見大人。",
+          "上九：亢龍有悔。"
+        ]
+      },
+      "000000": {
+        no: 2, name: "坤為地", trigrams: "坤上坤下",
+        judgement: "元，亨，利牝馬之貞。君子有攸往，先迷後得主，利西南得朋，東北喪朋。安貞，吉。",
+        image: "地勢坤，君子以厚德載物。",
+        summary: "純陰柔順，包容承載。宜順勢而為、居後配合，切忌強出頭，以厚德與耐心獲吉。",
+        yong: "用六：利永貞。",
+        lines: [
+          "初六：履霜，堅冰至。",
+          "六二：直，方，大，不習無不利。",
+          "六三：含章可貞。或從王事，無成有終。",
+          "六四：括囊，無咎，無譽。",
+          "六五：黃裳，元吉。",
+          "上六：龍戰於野，其血玄黃。"
+        ]
+      },
+      "100010": {
+        no: 3, name: "水雷屯", trigrams: "坎上震下",
+        judgement: "元，亨，利，貞。勿用有攸往，利建侯。",
+        image: "雲，雷，屯；君子以經綸。",
+        summary: "萬物始生之難，猶如草木破土而出。初期阻礙多，不宜輕舉妄動，宜廣結賢助、紮穩根基。",
+        lines: [
+          "初九：磐桓，利居貞，利建侯。",
+          "六二：屯如邅如，乘馬班如。匪寇婚媾，女子貞不字，十年乃字。",
+          "六三：即鹿無虞，惟入于林中，君子幾不如舍，往吝。",
+          "六四：乘馬班如，求婚媾，往吉，無不利。",
+          "九五：屯其膏，小貞吉，大貞凶。",
+          "上六：乘馬班如，泣血漣如。"
+        ]
+      },
+      "010001": {
+        no: 4, name: "山水蒙", trigrams: "艮上坎下",
+        judgement: "亨。匪我求童蒙，童蒙求我。初筮告，再三瀆，瀆則不告。利貞。",
+        image: "山下出泉，蒙；君子以果行育德。",
+        summary: "蒙昧未開、困惑猶豫之象。宜虛心求教、端正心志，切忌心存僥倖或反覆猶疑。",
+        lines: [
+          "初六：發蒙，利用刑人，用說桎梏，以往吝。",
+          "九二：包蒙吉，納婦吉，子克家。",
+          "六三：勿用取女，見金夫，不有躬，無攸利。",
+          "六四：困蒙，吝。",
+          "六五：童蒙，吉。",
+          "上九：擊蒙，不利為寇，利禦寇。"
+        ]
+      },
+      "111010": {
+        no: 5, name: "水天需", trigrams: "坎上乾下",
+        judgement: "有孚，光亨，貞吉。利涉大川。",
+        image: "雲上於天，需；君子以飲食宴樂。",
+        summary: "雲氣聚於天上，待時降雨。心懷誠信而耐心等待時機，切勿焦躁冒進，終能順利渡過難關。",
+        lines: [
+          "初九：需於郊，利用恆，無咎。",
+          "九二：需於沙，小有言，終吉。",
+          "九三：需於泥，致寇至。",
+          "六四：需於血，出自穴。",
+          "九五：需於酒食，貞吉。",
+          "上六：入于穴，有不速之客三人來，敬之終吉。"
+        ]
+      },
+      "010111": {
+        no: 6, name: "天水訟", trigrams: "乾上坎下",
+        judgement: "有孚，窒。惕中吉，終凶。利見大人，不利涉大川。",
+        image: "天與水違行，訟；君子以作事謀始。",
+        summary: "天水背道而馳，主爭執與訴訟。事事須在開端謹慎謀劃，適可而止、和解為貴，執意爭到底必凶。",
+        lines: [
+          "初六：不永所事，小有言，終吉。",
+          "九二：不克訟，歸而逋，其邑人三百戶，無眚。",
+          "六三：食舊德，貞厲，終吉。或從王事，無成。",
+          "九四：不克訟，復即命，渝安貞，吉。",
+          "九五：訟，元吉。",
+          "上九：或錫之鞶帶，終朝三褫之。"
+        ]
+      },
+      "010000": {
+        no: 7, name: "地水師", trigrams: "坤上坎下",
+        judgement: "貞，丈人，吉無咎。",
+        image: "地中有水，師；君子以容民畜眾。",
+        summary: "興師動眾、競爭考驗之象。必須師出有名、紀律嚴明，並委任德高望重且有經驗者主導方吉。",
+        lines: [
+          "初六：師出以律，否臧凶。",
+          "九二：在師中，吉無咎，王三錫命。",
+          "六三：師或輿尸，凶。",
+          "六四：師左次，無咎。",
+          "六五：田有禽，利執言，無咎。長子帥師，弟子輿尸，凶。",
+          "上六：大君有命，開國承家，小人勿用。"
+        ]
+      },
+      "000010": {
+        no: 8, name: "水地比", trigrams: "坎上坤下",
+        judgement: "吉。原筮元永貞，無咎。不寧方來，後夫凶。",
+        image: "地上有水，比；先王以建萬國，親諸侯。",
+        summary: "水附大地，親密團結、尋求合作之象。宜主動親近賢明之人、建立互信，猶豫遲疑者將失良機。",
+        lines: [
+          "初六：有孚比之，無咎。有孚盈缶，終來有他，吉。",
+          "六二：比之自內，貞吉。",
+          "六三：比之匪人。",
+          "六四：外比之，貞吉。",
+          "九五：顯比，王用三驅，失前禽。邑人不誡，吉。",
+          "上六：比之無首，凶。"
+        ]
+      },
+      "111011": {
+        no: 9, name: "風天小畜", trigrams: "巽上乾下",
+        judgement: "亨。密雲不雨，自我西郊。",
+        image: "風行天上，小畜；君子以懿文德。",
+        summary: "風行天上、力量尚微，積蓄未足（密雲不雨）。宜暫緩大動作，修養德行、累積實力以待時機。",
+        lines: [
+          "初九：復自道，何其咎，吉。",
+          "九二：牽復，吉。",
+          "九三：輿說輻，夫妻反目。",
+          "六四：有孚，血去惕出，無咎。",
+          "九五：有孚攣如，富以其鄰。",
+          "上九：既雨既處，尚德載，婦貞厲。月幾望，君子征凶。"
+        ]
+      },
+      "110111": {
+        no: 10, name: "天澤履", trigrams: "乾上兌下",
+        judgement: "履虎尾，不咥人，亨。",
+        image: "上天下澤，履；君子以辨上下，定民志。",
+        summary: "如履虎尾，處境伴隨風險，但只要秉持禮節、態度謙和謹慎，便能化險為夷、順利亨通。",
+        lines: [
+          "初九：素履，往無咎。",
+          "九二：履道坦坦，幽人貞吉。",
+          "六三：眇能視，跛能履，履虎尾，咥人，凶。武人為於大君。",
+          "九四：履虎尾，愬愬終吉。",
+          "九五：夬履，貞厲。",
+          "上九：視履考祥，其旋元吉。"
+        ]
+      },
+      "111000": {
+        no: 11, name: "地天泰", trigrams: "坤上乾下",
+        judgement: "小往大來，吉亨。",
+        image: "天地交泰，后以財成天地之道，輔相天地之宜，以左右民。",
+        summary: "天地交感、陰陽和諧，萬事通泰順遂。小人道消、君子道長，正值大展鴻圖之佳期。",
+        lines: [
+          "初九：拔茅茹，以其彙，征吉。",
+          "九二：包荒，用馮河，不遐遺，朋亡，得尚于中行。",
+          "九三：無平不陂，無往不復，艱貞無咎。勿恤其孚，於食有福。",
+          "六四：翩翩不富，以其鄰，不戒以孚。",
+          "六五：帝乙歸妹，以祉元吉。",
+          "上六：城復于隍，勿用師。自邑告命，貞吝。"
+        ]
+      },
+      "000111": {
+        no: 12, name: "天地否", trigrams: "乾上坤下",
+        judgement: "否之匪人，不利君子貞，大往小來。",
+        image: "天地不交，否；君子以儉德辟難，不可榮以祿。",
+        summary: "天地不交、上下隔閡，氣運閉塞不通。宜收斂鋒芒、明哲保身、韜光養晦，切忌強行擴張。",
+        lines: [
+          "初六：拔茅茹，以其彙，貞吉亨。",
+          "六二：包承。小人吉，大人否亨。",
+          "六三：包羞。",
+          "九四：有命無咎，疇離祉。",
+          "九五：休否，大人吉。其亡其亡，繫于苞桑。",
+          "上九：傾否，先否後喜。"
+        ]
+      },
+      "101111": {
+        no: 13, name: "天火同人", trigrams: "乾上離下",
+        judgement: "同人於野，亨。利涉大川，利君子貞。",
+        image: "天與火，同人；君子以類族辨物。",
+        summary: "志同道合、廣結善緣之象。秉持大公無私之心與人合作，不搞小圈子，則能克服險阻、大獲成功。",
+        lines: [
+          "初九：同人於門，無咎。",
+          "六二：同人於宗，吝。",
+          "九三：伏戎於莽，升其高陵，三歲不興。",
+          "九四：乘其墉，弗克攻，吉。",
+          "九五：同人，先號咷而後笑。大師克相遇。",
+          "上九：同人於郊，無悔。"
+        ]
+      },
+      "111101": {
+        no: 14, name: "火天大有", trigrams: "離上乾下",
+        judgement: "元亨。",
+        image: "火在天上，大有；君子以遏惡揚善，順天休命。",
+        summary: "日麗中天、普照萬物，大有收穫與豐盛之象。宜謙遜守正、遏惡揚善，方能長保富足。",
+        lines: [
+          "初九：無交害，匪咎，艱則無咎。",
+          "九二：大車以載，有攸往，無咎。",
+          "九三：公用亨於天子，小人弗克。",
+          "九四：匪其彭，無咎。",
+          "六五：厥孚交如，威如；吉。",
+          "上九：自天祐之，吉無不利。"
+        ]
+      },
+      "001000": {
+        no: 15, name: "地山謙", trigrams: "坤上艮下",
+        judgement: "亨，君子有終。",
+        image: "地中有山，謙；君子以裒多益寡，稱物平施。",
+        summary: "高山藏於地下，內高外低、謙遜虛懷。六爻皆吉之卦，保持低調謙和，任何事終能圓滿有成。",
+        lines: [
+          "初六：謙謙君子，用涉大川，吉。",
+          "六二：鳴謙，貞吉。",
+          "九三：勞謙君子，有終吉。",
+          "六四：無不利，撝謙。",
+          "六五：不富，以其鄰，利用侵伐，無不利。",
+          "上六：鳴謙，利用行師，征邑國。"
+        ]
+      },
+      "000100": {
+        no: 16, name: "雷地豫", trigrams: "震上坤下",
+        judgement: "利建侯行師。",
+        image: "雷出地奮，豫。先王以作樂崇德，殷薦之上帝，以配祖考。",
+        summary: "春雷震動大地，和樂順暢、人心振奮。宜順應民心積極行動，但須居安思危，切勿沉溺逸樂。",
+        lines: [
+          "初六：鳴豫，凶。",
+          "六二：介于石，不終日，貞吉。",
+          "六三：盱豫，悔。遲有悔。",
+          "九四：由豫，大有得。勿疑。朋盍簪。",
+          "六五：貞疾，恆不死。",
+          "上六：冥豫，成有渝，無咎。"
+        ]
+      },
+      "100110": {
+        no: 17, name: "澤雷隨", trigrams: "兌上震下",
+        judgement: "元亨利貞，無咎。",
+        image: "澤中有雷，隨；君子以嚮晦入宴息。",
+        summary: "隨機應變、順時而動之象。放下成見、順應正道與時勢變化，不固執己見則無往不利。",
+        lines: [
+          "初九：官有渝，貞吉。出門交有功。",
+          "六二：係小子，失丈夫。",
+          "六三：係丈夫，失小子。隨有求得，利居貞。",
+          "九四：隨有獲，貞凶。有孚在道，以明，何咎。",
+          "九五：孚於嘉，吉。",
+          "上六：拘係之，乃從維之。王用亨於西山。"
+        ]
+      },
+      "011001": {
+        no: 18, name: "山風蠱", trigrams: "艮上巽下",
+        judgement: "元亨，利涉大川。先甲三日，後甲三日。",
+        image: "山下有風，蠱；君子以振民育德。",
+        summary: "積弊已久、亟待整頓革新之象。面對腐敗或停滯問題，須深思熟慮、勇於改革，破舊方能立新。",
+        lines: [
+          "初六：幹父之蠱，有子，考無咎，厲終吉。",
+          "九二：幹母之蠱，不可貞。",
+          "九三：幹父之蠱，小有悔，無大咎。",
+          "六四：裕父之蠱，往見吝。",
+          "六五：幹父之蠱，用譽。",
+          "上九：不事王侯，高尚其事。"
+        ]
+      },
+      "110000": {
+        no: 19, name: "地澤臨", trigrams: "坤上兌下",
+        judgement: "元，亨，利，貞。至於八月有凶。",
+        image: "澤上有地，臨；君子以教思無窮，容保民無疆。",
+        summary: "陽氣漸長、親臨教化，事業蒸蒸日上。此時大為有利，但須防盛極轉衰（八月有凶），未雨綢繆。",
+        lines: [
+          "初九：咸臨，貞吉。",
+          "九二：咸臨，吉無不利。",
+          "六三：甘臨，無攸利。既憂之，無咎。",
+          "六四：至臨，無咎。",
+          "六五：知臨，大君之宜，吉。",
+          "上六：敦臨，吉無咎。"
+        ]
+      },
+      "000011": {
+        no: 20, name: "風地觀", trigrams: "巽上坤下",
+        judgement: "盥而不薦，有孚顒若。",
+        image: "風行地上，觀；先王以省方，觀民設教。",
+        summary: "風行大地、周覽觀察之象。宜冷靜審視局勢、反省自身言行，以真誠感召眾人，不宜急於出手。",
+        lines: [
+          "初六：童觀，小人無咎，君子吝。",
+          "六二：窺觀，利女貞。",
+          "六三：觀我生，進退。",
+          "六四：觀國之光，利用賓於王。",
+          "九五：觀我生，君子無咎。",
+          "上九：觀其生，君子無咎。"
+        ]
+      },
+      "100101": {
+        no: 21, name: "火雷噬嗑", trigrams: "離上震下",
+        judgement: "亨。利用獄。",
+        image: "雷電噬嗑；先王以明罰敕法。",
+        summary: "口中有物、咬合除障之象。遇到阻礙或小人作梗，必須果斷執法、明確是非，清除障礙方能亨通。",
+        lines: [
+          "初九：屨校滅趾，無咎。",
+          "六二：噬膚滅鼻，無咎。",
+          "六三：噬臘肉，遇毒；小吝，無咎。",
+          "九四：噬乾胏，得金矢，利艱貞，吉。",
+          "六五：噬乾肉，得黃金，貞厲，無咎。",
+          "上九：何校滅耳，凶。"
+        ]
+      },
+      "101001": {
+        no: 22, name: "山火賁", trigrams: "艮上離下",
+        judgement: "亨。小利有攸往。",
+        image: "山下有火，賁；君子以明庶政，無敢折獄。",
+        summary: "文飾美化、注重形象與禮儀之象。適度包裝與修飾有助小事推進，但切忌華而不實、本末倒置。",
+        lines: [
+          "初九：賁其趾，舍車而徒。",
+          "六二：賁其須。",
+          "九三：賁如濡如，永貞吉。",
+          "六四：賁如皤如，白馬翰如，匪寇婚媾。",
+          "六五：賁於丘園，束帛戔戔，吝，終吉。",
+          "上九：白賁，無咎。"
+        ]
+      },
+      "000001": {
+        no: 23, name: "山地剝", trigrams: "坤上艮下",
+        judgement: "不利有攸往。",
+        image: "山附於地，剝；上以厚下安宅。",
+        summary: "陰盛陽衰、剝落侵蝕之象。環境不利、小人得勢，切忌冒進遠行，宜順勢止步、鞏固根本以待生機。",
+        lines: [
+          "初六：剝床以足，蔑貞凶。",
+          "六二：剝床以辨，蔑貞凶。",
+          "六三：剝之，無咎。",
+          "六四：剝床以膚，凶。",
+          "六五：貫魚，以宮人寵，無不利。",
+          "上九：碩果不食，君子得輿，小人剝廬。"
+        ]
+      },
+      "100000": {
+        no: 24, name: "地雷復", trigrams: "坤上震下",
+        judgement: "亨。出入無疾，朋來無咎。反復其道，七日來復，利有攸往。",
+        image: "雷在地中，復；先王以至日閉關，商旅不行，后不省方。",
+        summary: "一陽來復、生機重現之象。歷經低潮後迎來轉機，宜細心呵護新生力量，循序漸進、必有可為。",
+        lines: [
+          "初九：不遠復，無祗悔，元吉。",
+          "六二：休復，吉。",
+          "六三：頻復，厲無咎。",
+          "六四：中行獨復。",
+          "六五：敦復，無悔。",
+          "上六：迷復，凶，有災眚。用行師，終有大敗，以其國君凶，至於十年不克征。"
+        ]
+      },
+      "100111": {
+        no: 25, name: "天雷無妄", trigrams: "乾上震下",
+        judgement: "元，亨，利，貞。其匪正有眚，不利有攸往。",
+        image: "天下雷行，物與無妄；先王以茂對時，育萬物。",
+        summary: "順應天理、真誠無妄之象。行事合乎正道與自然規律則大吉；若心存妄念或投機取巧，必招災禍。",
+        lines: [
+          "初九：無妄，往吉。",
+          "六二：不耕穫，不菑畬，則利有攸往。",
+          "六三：無妄之災，或繫之牛，行人之得，邑人之災。",
+          "九四：可貞，無咎。",
+          "九五：無妄之疾，勿藥有喜。",
+          "上九：無妄，行有眚，無攸利。"
+        ]
+      },
+      "111001": {
+        no: 26, name: "山天大畜", trigrams: "艮上乾下",
+        judgement: "利貞，不家食吉，利涉大川。",
+        image: "天在山中，大畜；君子以多識前言往行，以畜其德。",
+        summary: "蘊蓄深厚、厚積薄發之象。人才與實力已充分累積，宜走出去施展抱負，勇於承擔重任。",
+        lines: [
+          "初九：有厲，利已。",
+          "九二：輿說輹。",
+          "九三：良馬逐，利艱貞。曰閑輿衛，利有攸往。",
+          "六四：童牛之牿，元吉。",
+          "六五：豶豕之牙，吉。",
+          "上九：何天之衢，亨。"
+        ]
+      },
+      "100001": {
+        no: 27, name: "山雷頤", trigrams: "艮上震下",
+        judgement: "貞吉。觀頤，自求口實。",
+        image: "山下有雷，頤；君子以慎言語，節飲食。",
+        summary: "頤養之道、修身養性之象。慎言節食、自食其力，注重身心與品德的滋養，守正自能獲吉。",
+        lines: [
+          "初九：舍爾靈龜，觀我朵頤，凶。",
+          "六二：顛頤，拂經，於丘頤，征凶。",
+          "六三：拂頤，貞凶，十年勿用，無攸利。",
+          "六四：顛頤，吉。虎視眈眈，其欲逐逐，無咎。",
+          "六五：拂經，居貞吉，不可涉大川。",
+          "上九：由頤，厲吉，利涉大川。"
+        ]
+      },
+      "011110": {
+        no: 28, name: "澤風大過", trigrams: "兌上巽下",
+        judgement: "棟撓，利有攸往，亨。",
+        image: "澤滅木，大過；君子以獨立不懼，遯世無悶。",
+        summary: "陽剛過盛、重負壓頂（棟樑彎曲）之非常時期。須有超凡魄力與獨立精神，果斷行動方能轉危為安。",
+        lines: [
+          "初六：藉用白茅，無咎。",
+          "九二：枯楊生稊，老夫得其女妻，無不利。",
+          "九三：棟撓，凶。",
+          "九四：棟隆，吉；有它吝。",
+          "九五：枯楊生華，老婦得其士夫，無咎無譽。",
+          "上六：過涉滅頂，凶，無咎。"
+        ]
+      },
+      "010010": {
+        no: 29, name: "坎為水", trigrams: "坎上坎下",
+        judgement: "習坎，有孚，維心亨，行有尚。",
+        image: "水洊至，習坎；君子以常德行，習教事。",
+        summary: "重重險阻、考驗接踵而至。唯有內心保持誠信與鎮定，如流水般不失其信，方能衝破險境。",
+        lines: [
+          "初六：習坎，入于坎窞，凶。",
+          "九二：坎有險，求小得。",
+          "六三：來之坎坎，險且枕，入于坎窞，勿用。",
+          "六四：樽酒簋貳，用缶，納約自牖，終無咎。",
+          "九五：坎不盈，祗既平，無咎。",
+          "上六：係用徽纆，寘于叢棘，三歲不得，凶。"
+        ]
+      },
+      "101101": {
+        no: 30, name: "離為火", trigrams: "離上離下",
+        judgement: "利貞，亨。畜牝牛，吉。",
+        image: "明兩作，離；大人以繼明照於四方。",
+        summary: "光明附麗、智慧通達之象。火須依附薪柴方能燃燒，人亦須依附正道與柔順美德，方能持久光明。",
+        lines: [
+          "初九：履錯然，敬之無咎。",
+          "六二：黃離，元吉。",
+          "九三：日昃之離，不鼓缶而歌，則大耋之嗟，凶。",
+          "九四：突如其來如，焚如，死如，棄如。",
+          "六五：出涕沱若，戚嗟若，吉。",
+          "上九：王用出征，有嘉折首，獲匪其醜，無咎。"
+        ]
+      },
+      "001110": {
+        no: 31, name: "澤山咸", trigrams: "兌上艮下",
+        judgement: "亨，利貞，取女吉。",
+        image: "山上有澤，咸；君子以虛受人。",
+        summary: "無心之感、心靈相通之象。以真誠虛懷待人，不帶功利私心，無論感情或合作皆能感應順遂。",
+        lines: [
+          "初六：咸其拇。",
+          "六二：咸其腓，凶，居吉。",
+          "九三：咸其股，執其隨，往吝。",
+          "九四：貞吉，悔亡，憧憧往來，朋從爾思。",
+          "九五：咸其脢，無悔。",
+          "上六：咸其輔，頰，舌。"
+        ]
+      },
+      "011100": {
+        no: 32, name: "雷風恆", trigrams: "震上巽下",
+        judgement: "亨，無咎，利貞，利有攸往。",
+        image: "雷風，恆；君子以立不易方。",
+        summary: "持之以恆、守正不移之象。恆久並非一成不變，而是在正道原則下順應變化、堅定前行。",
+        lines: [
+          "初六：浚恆，貞凶，無攸利。",
+          "九二：悔亡。",
+          "九三：不恆其德，或承之羞，貞吝。",
+          "九四：田無禽。",
+          "六五：恆其德，貞，婦人吉，夫子凶。",
+          "上六：振恆，凶。"
+        ]
+      },
+      "001111": {
+        no: 33, name: "天山遯", trigrams: "乾上艮下",
+        judgement: "亨，小利貞。",
+        image: "天下有山，遯；君子以遠小人，不惡而嚴。",
+        summary: "陰氣漸長、君子退避之象。審時度勢、適時退隱並非怯懦，而是保全實力、遠離小人的智慧。",
+        lines: [
+          "初六：遯尾，厲，勿用有攸往。",
+          "六二：執之用黃牛之革，莫之勝說。",
+          "九三：係遯，有疾厲，畜臣妾吉。",
+          "九四：好遯，君子吉，小人否。",
+          "九五：嘉遯，貞吉。",
+          "上九：肥遯，無不利。"
+        ]
+      },
+      "111100": {
+        no: 34, name: "雷天大壯", trigrams: "震上乾下",
+        judgement: "利貞。",
+        image: "雷在天上，大壯；君子以非禮弗履。",
+        summary: "陽剛強盛、氣勢壯大之象。實力充沛之時最忌恃強妄為，唯有恪守禮法與正道，方能無往不利。",
+        lines: [
+          "初九：壯于趾，征凶，有孚。",
+          "九二：貞吉。",
+          "九三：小人用壯，君子用罔，貞厲。羝羊觸藩，羸其角。",
+          "九四：貞吉，悔亡，藩決不羸，壯于大輿之輹。",
+          "六五：喪羊于易，無悔。",
+          "上六：羝羊觸藩，不能退，不能遂，無攸利，艱則吉。"
+        ]
+      },
+      "000101": {
+        no: 35, name: "火地晉", trigrams: "離上坤下",
+        judgement: "康侯用錫馬蕃庶，晝日三接。",
+        image: "明出地上，晉；君子以自昭明德。",
+        summary: "旭日東昇、光明普照，事業晉升、備受賞識之象。宜展現才華與美德，積極進取、順勢而上。",
+        lines: [
+          "初六：晉如，摧如，貞吉。罔孚，裕無咎。",
+          "六二：晉如，愁如，貞吉。受茲介福，於其王母。",
+          "六三：眾允，悔亡。",
+          "九四：晉如鼫鼠，貞厲。",
+          "六五：悔亡，失得勿恤，往吉，無不利。",
+          "上九：晉其角，維用伐邑，厲吉無咎，貞吝。"
+        ]
+      },
+      "101000": {
+        no: 36, name: "地火明夷", trigrams: "坤上離下",
+        judgement: "利艱貞。",
+        image: "明入地中，明夷；君子以蒞眾，用晦而明。",
+        summary: "光明入地、才華受抑、環境艱險之象。宜外愚內智、韜光養晦，在逆境中堅守正道以待黎明。",
+        lines: [
+          "初九：明夷於飛，垂其翼。君子於行，三日不食，有攸往，主人有言。",
+          "六二：明夷，夷于左股，用拯馬壯，吉。",
+          "九三：明夷於南狩，得其大首，不可疾貞。",
+          "六四：入于左腹，獲明夷之心，於出門庭。",
+          "六五：箕子之明夷，利貞。",
+          "上六：不明晦，初登于天，後入于地。"
+        ]
+      },
+      "101011": {
+        no: 37, name: "風火家人", trigrams: "巽上離下",
+        judgement: "利女貞。",
+        image: "風自火出，家人；君子以言有物，而行有恆。",
+        summary: "齊家治內、各安其位之象。凡事先安頓好內部與家庭關係，言行誠信有恆，內部和睦則外事自成。",
+        lines: [
+          "初九：閑有家，悔亡。",
+          "六二：無攸遂，在中饋，貞吉。",
+          "九三：家人嗃嗃，悔厲吉；婦子嘻嘻，終吝。",
+          "六四：富家，大吉。",
+          "九五：王假有家，勿恤，吉。",
+          "上九：有孚威如，終吉。"
+        ]
+      },
+      "110101": {
+        no: 38, name: "火澤睽", trigrams: "離上兌下",
+        judgement: "小事吉。",
+        image: "上火下澤，睽；君子以同而異。",
+        summary: "火炎上、澤潤下，意見分歧、背道而馳之象。宜求同存異、先處理小事，真誠溝通終能化解誤會。",
+        lines: [
+          "初九：悔亡，喪馬勿逐，自復；見惡人無咎。",
+          "九二：遇主于巷，無咎。",
+          "六三：見輿曳，其牛掣，其人天且劓，無初有終。",
+          "九四：睽孤，遇元夫，交孚，厲無咎。",
+          "六五：悔亡，厥宗噬膚，往何咎。",
+          "上九：睽孤，見豕負塗，載鬼一車，先張之弧，後說之弧，匪寇婚媾，往遇雨則吉。"
+        ]
+      },
+      "001010": {
+        no: 39, name: "水山蹇", trigrams: "坎上艮下",
+        judgement: "利西南，不利東北；利見大人，貞吉。",
+        image: "山上有水，蹇；君子以反身修德。",
+        summary: "前有險水、後有高山，進退維谷、阻礙重重。切忌硬闖，宜止步反求諸己、修德蓄力，尋求貴人相助。",
+        lines: [
+          "初六：往蹇，來譽。",
+          "六二：王臣蹇蹇，匪躬之故。",
+          "九三：往蹇來反。",
+          "六四：往蹇來連。",
+          "九五：大蹇朋來。",
+          "上六：往蹇來碩，吉；利見大人。"
+        ]
+      },
+      "010100": {
+        no: 40, name: "雷水解", trigrams: "震上坎下",
+        judgement: "利西南，無所往，其來復吉。有攸往，夙吉。",
+        image: "雷雨作，解；君子以赦過宥罪。",
+        summary: "春雷陣雨、冰雪消融，困境解除之象。難關已過，宜寬大為懷、迅速恢復常軌，有目標則宜早行動。",
+        lines: [
+          "初六：無咎。",
+          "九二：田獲三狐，得黃矢，貞吉。",
+          "六三：負且乘，致寇至，貞吝。",
+          "九四：解而拇，朋至斯孚。",
+          "六五：君子維有解，吉；有孚于小人。",
+          "上六：公用射隼于高墉之上，獲之，無不利。"
+        ]
+      },
+      "110001": {
+        no: 41, name: "山澤損", trigrams: "艮上兌下",
+        judgement: "有孚，元吉，無咎，可貞，利有攸往。曷之用，二簋可用享。",
+        image: "山下有澤，損；君子以懲忿窒欲。",
+        summary: "減損私欲、先難後獲之象。適度捨棄短期利益或克制慾望，以真誠待人，反能帶來長遠的增益。",
+        lines: [
+          "初九：已事遄往，無咎，酌損之。",
+          "九二：利貞，征凶，弗損益之。",
+          "六三：三人行，則損一人；一人行，則得其友。",
+          "六四：損其疾，使遄有喜，無咎。",
+          "六五：或益之，十朋之龜弗克違，元吉。",
+          "上九：弗損益之，無咎，貞吉，利有攸往，得臣無家。"
+        ]
+      },
+      "100011": {
+        no: 42, name: "風雷益", trigrams: "巽上震下",
+        judgement: "利有攸往，利涉大川。",
+        image: "風雷，益；君子以見善則遷，有過則改。",
+        summary: "損上益下、增益助長之象。時運極佳、資源湧入，宜把握良機大膽推進事業，並見善思齊。",
+        lines: [
+          "初九：利用為大作，元吉，無咎。",
+          "六二：或益之十朋之龜，弗克違，永貞吉。王用享於帝，吉。",
+          "六三：益之用凶事，無咎。有孚中行，告公用圭。",
+          "六四：中行，告公從。利用為依遷國。",
+          "九五：有孚惠心，勿問元吉。有孚惠我德。",
+          "上九：莫益之，或擊之，立心勿恆，凶。"
+        ]
+      },
+      "111110": {
+        no: 43, name: "澤天夬", trigrams: "兌上乾下",
+        judgement: "揚于王庭，孚號，有厲，告自邑，不利即戎，利有攸往。",
+        image: "澤上於天，夬；君子以施祿及下，居德則忌。",
+        summary: "五陽決一陰、果斷決裂之象。必須公開透明地揭露問題、果斷處理，但切忌全憑武力硬碰硬。",
+        lines: [
+          "初九：壯于前趾，往不勝為咎。",
+          "九二：惕號，莫夜有戎，勿恤。",
+          "九三：壯于頄，有凶。君子夬夬，獨行遇雨，若濡有慍，無咎。",
+          "九四：臀無膚，其行次且。牽羊悔亡，聞言不信。",
+          "九五：莧陸夬夬，中行無咎。",
+          "上六：無號，終有凶。"
+        ]
+      },
+      "011111": {
+        no: 44, name: "天風姤", trigrams: "乾上巽下",
+        judgement: "女壯，勿用取女。",
+        image: "天下有風，姤；后以施命誥四方。",
+        summary: "一陰始生、不期而遇之象。看似偶然的邂逅或小問題，背後暗藏強大變數，須防微杜漸、慎選夥伴。",
+        lines: [
+          "初六：繫于金柅，貞吉，有攸往，見凶，羸豕孚蹢躅。",
+          "九二：包有魚，無咎，不利賓。",
+          "九三：臀無膚，其行次且，厲，無大咎。",
+          "九四：包無魚，起凶。",
+          "九五：以杞包瓜，含章，有隕自天。",
+          "上九：姤其角，吝，無咎。"
+        ]
+      },
+      "000110": {
+        no: 45, name: "澤地萃", trigrams: "兌上坤下",
+        judgement: "亨。王假有廟，利見大人，亨，利貞。用大牲吉，利有攸往。",
+        image: "澤上於地，萃；君子以除戎器，戒不虞。",
+        summary: "人才匯聚、資源集中之象。宜凝聚向心力、拜見貴人，人多事雜之際亦須居安思危、防範意外。",
+        lines: [
+          "初六：有孚不終，乃亂乃萃，若號，一握為笑，勿恤，往無咎。",
+          "六二：引吉，無咎，孚乃利用禴。",
+          "六三：萃如，嗟如，無攸利，往無咎，小吝。",
+          "九四：大吉，無咎。",
+          "九五：萃有位，無咎。匪孚，元永貞，悔亡。",
+          "上六：齎咨涕洟，無咎。"
+        ]
+      },
+      "011000": {
+        no: 46, name: "地風升", trigrams: "坤上巽下",
+        judgement: "元亨，用見大人，勿恤，南征吉。",
+        image: "地中生木，升；君子以順德，積小以高大。",
+        summary: "草木破土向上生長，穩步高升之象。無需憂慮，只要腳踏實地、積小成大，必獲貴人提攜而順利。",
+        lines: [
+          "初六：允升，大吉。",
+          "九二：孚乃利用禴，無咎。",
+          "九三：升虛邑。",
+          "六四：王用亨於岐山，吉無咎。",
+          "六五：貞吉，升階。",
+          "上六：冥升，利於不息之貞。"
+        ]
+      },
+      "010110": {
+        no: 47, name: "澤水困", trigrams: "兌上坎下",
+        judgement: "亨，貞，大人吉，無咎，有言不信。",
+        image: "澤無水，困；君子以致命遂志。",
+        summary: "澤水乾涸、陷入困境之象。此時多說無益（有言不信），唯有堅守操守、靜待時機，方能困而亨通。",
+        lines: [
+          "初六：臀困于株木，入于幽谷，三歲不覿。",
+          "九二：困于酒食，朱紱方來，利用享祀，征凶，無咎。",
+          "六三：困于石，據于蒺藜，入于其宮，不見其妻，凶。",
+          "九四：來徐徐，困于金車，吝，有終。",
+          "九五：劓刖，困于赤紱，乃徐有說，利用祭祀。",
+          "上六：困于葛藟，于臲卼，曰動悔。有悔，征吉。"
+        ]
+      },
+      "011010": {
+        no: 48, name: "水風井", trigrams: "坎上巽下",
+        judgement: "改邑不改井，無喪無得，往來井井。汔至亦未繘井，羸其瓶，凶。",
+        image: "木上有水，井；君子以勞民勸相。",
+        summary: "水井養人、穩健長久之象。井水取之不竭，代表修身立業須有恆心，功虧一簣（打翻水瓶）則凶。",
+        lines: [
+          "初六：井泥不食，舊井無禽。",
+          "九二：井谷射鮒，甕敝漏。",
+          "九三：井渫不食，為我心惻，可用汲，王明，並受其福。",
+          "六四：井甃，無咎。",
+          "九五：井冽，寒泉食。",
+          "上六：井收勿幕，有孚元吉。"
+        ]
+      },
+      "101110": {
+        no: 49, name: "澤火革", trigrams: "兌上離下",
+        judgement: "己日乃孚，元亨利貞，悔亡。",
+        image: "澤中有火，革；君子以治曆明時。",
+        summary: "水火相息、變革創新之象。舊模式已不適用，必須順應時勢進行徹底改革，取得眾人信任便能大吉。",
+        lines: [
+          "初九：鞏用黃牛之革。",
+          "六二：己日乃革之，征吉，無咎。",
+          "九三：征凶，貞厲，革言三就，有孚。",
+          "九四：悔亡，有孚改命，吉。",
+          "九五：大人虎變，未占有孚。",
+          "上六：君子豹變，小人革面，征凶，居貞吉。"
+        ]
+      },
+      "011101": {
+        no: 50, name: "火風鼎", trigrams: "離上巽下",
+        judgement: "元吉，亨。",
+        image: "木上有火，鼎；君子以正位凝命。",
+        summary: "革故鼎新、穩重立業之象。三足鼎立象徵穩固與權威，宜整頓秩序、任用賢才，開創新局大吉。",
+        lines: [
+          "初六：鼎顛趾，利出否，得妾以其子，無咎。",
+          "九二：鼎有實，我仇有疾，不我能即，吉。",
+          "九三：鼎耳革，其行塞，雉膏不食，方雨虧悔，終吉。",
+          "九四：鼎折足，覆公餗，其形渥，凶。",
+          "六五：鼎黃耳金鉉，利貞。",
+          "上九：鼎玉鉉，大吉，無不利。"
+        ]
+      },
+      "100100": {
+        no: 51, name: "震為雷", trigrams: "震上震下",
+        judgement: "亨。震來虩虩，笑言啞啞。震驚百里，不喪匕鬯。",
+        image: "洊雷，震；君子以恐懼修省。",
+        summary: "驚雷連響、突發變動之象。面對突如其來的衝擊或變故，只要鎮定自若、反思自省，終能化驚為喜。",
+        lines: [
+          "初九：震來虩虩，後笑言啞啞，吉。",
+          "六二：震來厲，億喪貝，躋于九陵，勿逐，七日得。",
+          "六三：震蘇蘇，震行無眚。",
+          "九四：震遂泥。",
+          "六五：震往來厲，億無喪，有事。",
+          "上六：震索索，視矍矍，征凶。震不于其躬，于其鄰，無咎。婚媾有言。"
+        ]
+      },
+      "001001": {
+        no: 52, name: "艮為山", trigrams: "艮上艮下",
+        judgement: "艮其背，不獲其身，行其庭，不見其人，無咎。",
+        image: "兼山，艮；君子以思不出其位。",
+        summary: "兩山並立、止息靜守之象。時機未到或心浮氣躁時，當止則止、安守本分，不被外物干擾則無咎。",
+        lines: [
+          "初六：艮其趾，無咎，利永貞。",
+          "六二：艮其腓，不拯其隨，其心不快。",
+          "九三：艮其限，列其夤，厲薰心。",
+          "六四：艮其身，無咎。",
+          "六五：艮其輔，言有序，悔亡。",
+          "上九：敦艮，吉。"
+        ]
+      },
+      "001011": {
+        no: 53, name: "風山漸", trigrams: "巽上艮下",
+        judgement: "女歸吉，利貞。",
+        image: "山上有木，漸；君子以居賢德善俗。",
+        summary: "山上有木、循序漸進之象。如鴻雁南飛般有節奏地推進，切忌急功近利，按部就班終成大器。",
+        lines: [
+          "初六：鴻漸于干，小子厲，有言，無咎。",
+          "六二：鴻漸于磐，飲食衎衎，吉。",
+          "九三：鴻漸于陸，夫征不復，婦孕不育，凶；利禦寇。",
+          "六四：鴻漸于木，或得其桷，無咎。",
+          "九五：鴻漸于陵，婦三歲不孕，終莫之勝，吉。",
+          "上九：鴻漸于陸，其羽可用為儀，吉。"
+        ]
+      },
+      "110100": {
+        no: 54, name: "雷澤歸妹", trigrams: "震上兌下",
+        judgement: "征凶，無攸利。",
+        image: "澤上有雷，歸妹；君子以永終知敝。",
+        summary: "情動衝動、次序顛倒之象。若僅憑一時衝動或名不正言不順而行事，必招致後續困擾，宜三思而行。",
+        lines: [
+          "初九：歸妹以娣，跛能履，征吉。",
+          "九二：眇能視，利幽人之貞。",
+          "六三：歸妹以須，反歸以娣。",
+          "九四：歸妹愆期，遲歸有時。",
+          "六五：帝乙歸妹，其君之袂，不如其娣之袂良，月幾望，吉。",
+          "上六：女承筐無實，士刲羊無血，無攸利。"
+        ]
+      },
+      "101100": {
+        no: 55, name: "雷火豐", trigrams: "震上離下",
+        judgement: "亨，王假之，勿憂，宜日中。",
+        image: "雷電皆至，豐；君子以折獄致刑。",
+        summary: "雷電交加、盛大豐盈之象。如日中天之盛況，宜把握當下積極作為，但須防日中則昃、盛極而衰。",
+        lines: [
+          "初九：遇其配主，雖旬無咎，往有尚。",
+          "六二：豐其蔀，日中見斗，往得疑疾，有孚發若，吉。",
+          "九三：豐其沛，日中見沫，折其右肱，無咎。",
+          "九四：豐其蔀，日中見斗，遇其夷主，吉。",
+          "六五：來章，有慶譽，吉。",
+          "上六：豐其屋，蔀其家，窺其戶，闃其無人，三歲不覿，凶。"
+        ]
+      },
+      "001101": {
+        no: 56, name: "火山旅", trigrams: "離上艮下",
+        judgement: "小亨，旅貞吉。",
+        image: "山上有火，旅；君子以明慎用刑，而不留獄。",
+        summary: "羈旅在外、漂泊不定之象。身處陌生環境或變動期，宜謙卑謹慎、靈活應變，切忌張揚惹事。",
+        lines: [
+          "初六：旅瑣瑣，斯其所取災。",
+          "六二：旅即次，懷其資，得童僕貞。",
+          "九三：旅焚其次，喪其童僕，貞厲。",
+          "九四：旅于處，得其資斧，我心不快。",
+          "六五：射雉一矢亡，終以譽命。",
+          "上九：鳥焚其巢，旅人先笑後號咷。喪牛于易，凶。"
+        ]
+      },
+      "011011": {
+        no: 57, name: "巽為風", trigrams: "巽上巽下",
+        judgement: "小亨，利有攸往，利見大人。",
+        image: "隨風，巽；君子以申命行事。",
+        summary: "和風徐吹、無孔不入之象。宜以柔順謙遜、反覆溝通的方式推進事務，尋求大人指導則事半功倍。",
+        lines: [
+          "初六：進退，利武人之貞。",
+          "九二：巽在床下，用史巫紛若，吉無咎。",
+          "九三：頻巽，吝。",
+          "六四：悔亡，田獲三品。",
+          "九五：貞吉，悔亡，無不利。無初有終，先庚三日，後庚三日，吉。",
+          "上九：巽在床下，喪其資斧，貞凶。"
+        ]
+      },
+      "110110": {
+        no: 58, name: "兌為澤", trigrams: "兌上兌下",
+        judgement: "亨，利貞。",
+        image: "麗澤，兌；君子以朋友講習。",
+        summary: "兩澤相連、喜悅溝通之象。與人真誠交流、和顏悅色自能帶來好運，但須守正道，切忌溺於享樂。",
+        lines: [
+          "初九：和兌，吉。",
+          "九二：孚兌，吉，悔亡。",
+          "六三：來兌，凶。",
+          "九四：商兌，未寧，介疾有喜。",
+          "九五：孚于剝，有厲。",
+          "上六：引兌。"
+        ]
+      },
+      "010011": {
+        no: 59, name: "風水渙", trigrams: "巽上坎下",
+        judgement: "亨。王假有廟，利涉大川，利貞。",
+        image: "風行水上，渙；先王以享于帝立廟。",
+        summary: "春風吹散堅冰、化解隔閡之象。僵局與憂患正在消散，宜凝聚人心、勇於突破難關。",
+        lines: [
+          "初六：用拯馬壯，吉。",
+          "九二：渙奔其机，悔亡。",
+          "六三：渙其躬，無悔。",
+          "六四：渙其群，元吉。渙有丘，匪夷所思。",
+          "九五：渙汗其大號，渙王居，無咎。",
+          "上九：渙其血，去逖出，無咎。"
+        ]
+      },
+      "110010": {
+        no: 60, name: "水澤節", trigrams: "坎上兌下",
+        judgement: "亨。苦節不可貞。",
+        image: "澤上有水，節；君子以制數度，議德行。",
+        summary: "澤上有水、適度節制之象。凡事須立規矩、講分寸，過度放縱或過度嚴苛（苦節）皆非長久之道。",
+        lines: [
+          "初九：不出戶庭，無咎。",
+          "九二：不出門庭，凶。",
+          "六三：不節若，則嗟若，無咎。",
+          "六四：安節，亨。",
+          "九五：甘節，吉；往有尚。",
+          "上六：苦節，貞凶，悔亡。"
+        ]
+      },
+      "110011": {
+        no: 61, name: "風澤中孚", trigrams: "巽上兌下",
+        judgement: "豚魚吉，利涉大川，利貞。",
+        image: "澤上有風，中孚；君子以議獄緩死。",
+        summary: "心懷誠信、感通萬物之象。至誠所至連豚魚都能感動，秉持真誠與正道，任何險阻皆可渡過。",
+        lines: [
+          "初九：虞吉，有它不燕。",
+          "九二：鳴鶴在陰，其子和之，我有好爵，吾與爾靡之。",
+          "六三：得敵，或鼓或罷，或泣或歌。",
+          "六四：月幾望，馬匹亡，無咎。",
+          "九五：有孚攣如，無咎。",
+          "上九：翰音登於天，貞凶。"
+        ]
+      },
+      "001100": {
+        no: 62, name: "雷山小過", trigrams: "震上艮下",
+        judgement: "亨，利貞，可小事，不可大事。飛鳥遺之音，不宜上宜下，大吉。",
+        image: "山上有雷，小過；君子以行過乎恭，喪過乎哀，用過乎儉。",
+        summary: "小有過度、宜低調務實之象。可處理日常小事，不宜好高騖遠做大事，保持謙卑低姿態則大吉。",
+        lines: [
+          "初六：飛鳥以凶。",
+          "六二：過其祖，遇其妣；不及其君，遇其臣；無咎。",
+          "九三：弗過防之，從或戕之，凶。",
+          "九四：無咎，弗過遇之。往厲必戒，勿用永貞。",
+          "六五：密雲不雨，自我西郊，公弋取彼在穴。",
+          "上六：弗遇過之，飛鳥離之，凶，是謂災眚。"
+        ]
+      },
+      "101010": {
+        no: 63, name: "水火既濟", trigrams: "坎上離下",
+        judgement: "亨，小利貞，初吉終亂。",
+        image: "水在火上，既濟；君子以思患而預防之。",
+        summary: "水火相交、大功告成之象。事情初期順遂圓滿，但盛極容易鬆懈而生亂，必須居安思危、防患未然。",
+        lines: [
+          "初九：曳其輪，濡其尾，無咎。",
+          "六二：婦喪其茀，勿逐，七日得。",
+          "九三：高宗伐鬼方，三年克之，小人勿用。",
+          "六四：繻有衣袽，終日戒。",
+          "九五：東鄰殺牛，不如西鄰之禴祭，實受其福。",
+          "上六：濡其首，厲。"
+        ]
+      },
+      "010101": {
+        no: 64, name: "火水未濟", trigrams: "離上坎下",
+        judgement: "亨，小狐汔濟，濡其尾，無攸利。",
+        image: "火在水上，未濟；君子以慎辨物居方。",
+        summary: "火上水下、事猶未成但蘊含生機之象。切忌像小狐狸般在即將渡河時因大意而濕尾，謹慎終能成功。",
+        lines: [
+          "初六：濡其尾，吝。",
+          "九二：曳其輪，貞吉。",
+          "六三：未濟，征凶，利涉大川。",
+          "九四：貞吉，悔亡，震用伐鬼方，三年有賞于大國。",
+          "六五：貞吉，無悔，君子之光，有孚，吉。",
+          "上九：有孚于飲酒，無咎，濡其首，有孚失是。"
+        ]
+      }
+    };
+
+    /**
+     * ============================================================================
+     * 三、核心起卦引擎（1. 三枚銅錢起卦引擎  2. 先天數字起卦引擎）
+     * ============================================================================
+     */
+
+    /**
+     * 單次模擬擲三枚銅錢（正面「字」=3，反面「花」=2）
+     * @returns {object} 單爻擲幣明細
+     */
+    function tossThreeCoins() {
+      const coins = [
+        Math.random() < 0.5 ? 3 : 2,
+        Math.random() < 0.5 ? 3 : 2,
+        Math.random() < 0.5 ? 3 : 2
+      ];
+      const value = coins[0] + coins[1] + coins[2]; // 6, 7, 8, 9
+      const isYang = value === 7 || value === 9;
+      const isMoving = value === 6 || value === 9;
+      const labelMap = {
+        6: '老陰 (× 動)',
+        7: '少陽 (— 靜)',
+        8: '少陰 (-- 靜)',
+        9: '老陽 (○ 動)'
+      };
+
+      return {
+        coins,
+        value,
+        isYang,
+        isMoving,
+        changedIsYang: isMoving ? !isYang : isYang,
+        typeLabel: labelMap[value]
+      };
+    }
+
+    /**
+     * 引擎 1：三枚銅錢起卦引擎
+     * @param {Array} tossRecords - 長度為 6 的擲幣陣列（索引 0 為初爻，索引 5 為上爻）
+     * @returns {object} 統一格式的起卦結果物件
+     */
+    function divinateByCoins(tossRecords) {
+      if (!Array.isArray(tossRecords) || tossRecords.length !== 6) {
+        throw new Error('三枚銅錢法必須完成六次擲幣方可成卦。');
+      }
+
+      const lines = tossRecords.map((item, idx) => {
+        const coins = Array.isArray(item.coins) && item.coins.length === 3
+          ? item.coins
+          : [3, 2, 2];
+        const value = item.value || (coins[0] + coins[1] + coins[2]);
+        const isYang = value === 7 || value === 9;
+        const isMoving = value === 6 || value === 9;
+
+        return {
+          position: idx + 1,
+          coins,
+          value,
+          isYang,
+          isMoving,
+          changedIsYang: isMoving ? !isYang : isYang
+        };
+      });
+
+      // 由下往上組合二進位字串（初爻在左，上爻在右）
+      const originalBinary = lines.map(l => (l.isYang ? '1' : '0')).join('');
+      const changedBinary = lines.map(l => (l.changedIsYang ? '1' : '0')).join('');
+
+      const lowerTrigram = TRIGRAMS_BY_BINARY[originalBinary.slice(0, 3)];
+      const upperTrigram = TRIGRAMS_BY_BINARY[originalBinary.slice(3, 6)];
+      const rule = getInterpretationRule(originalBinary, changedBinary, lines);
+
+      const seqStr = lines.map(l => l.value).join('-');
+      return {
+        method: 'coins',
+        methodName: '三枚銅錢法',
+        formulaSummary: `六爻數值(初→上)：${seqStr} · 共 ${rule.movingCount} 個動爻`,
+        lowerTrigram,
+        upperTrigram,
+        originalBinary,
+        changedBinary,
+        lines,
+        rule
+      };
+    }
+
+    /**
+     * 引擎 2：先天數字起卦引擎
+     * @param {number} num1 - 第一組數字（求下卦：除 8 取餘）
+     * @param {number} num2 - 第二組數字（求上卦：除 8 取餘）
+     * @param {number} num3 - 第三組數字（求動爻：除 6 取餘）
+     * @returns {object} 統一格式的起卦結果物件
+     */
+    function divinateByNumbers(num1, num2, num3) {
+      const n1 = Math.abs(Math.floor(Number(num1)));
+      const n2 = Math.abs(Math.floor(Number(num2)));
+      const n3 = Math.abs(Math.floor(Number(num3)));
+
+      if (!n1 || !n2 || !n3 || isNaN(n1) || isNaN(n2) || isNaN(n3)) {
+        throw new Error('請完整輸入三組大於 0 的正整數。');
+      }
+
+      // 除 8 取餘求先天八卦序（整除則為 8 坤）
+      const lowerIdx = n1 % 8 === 0 ? 8 : n1 % 8;
+      const upperIdx = n2 % 8 === 0 ? 8 : n2 % 8;
+      // 除 6 取餘求動爻位（整除則為 6 上爻）
+      const movingLine = n3 % 6 === 0 ? 6 : n3 % 6;
+
+      const lowerTrigram = TRIGRAMS_BY_INDEX[lowerIdx];
+      const upperTrigram = TRIGRAMS_BY_INDEX[upperIdx];
+
+      // 由下往上組合本卦二進位（下卦 3 爻 + 上卦 3 爻）
+      const originalBinary = lowerTrigram.binary + upperTrigram.binary;
+
+      const lines = originalBinary.split('').map((bit, idx) => {
+        const position = idx + 1;
+        const isYang = bit === '1';
+        const isMoving = position === movingLine;
+        const value = isYang ? (isMoving ? 9 : 7) : (isMoving ? 6 : 8);
+        const changedIsYang = isMoving ? !isYang : isYang;
+
+        return {
+          position,
+          value,
+          isYang,
+          isMoving,
+          changedIsYang
+        };
+      });
+
+      const changedBinary = lines.map(l => (l.changedIsYang ? '1' : '0')).join('');
+      const rule = getInterpretationRule(originalBinary, changedBinary, lines);
+
+      return {
+        method: 'numbers',
+        methodName: '先天數字起卦法',
+        inputs: [n1, n2, n3],
+        lowerIdx,
+        upperIdx,
+        movingLine,
+        formulaSummary: `下卦 ${n1}÷8餘${lowerIdx}(${lowerTrigram.name}) · 上卦 ${n2}÷8餘${upperIdx}(${upperTrigram.name}) · 第${movingLine}爻動`,
+        lowerTrigram,
+        upperTrigram,
+        originalBinary,
+        changedBinary,
+        lines,
+        rule
+      };
+    }
+
+    /**
+     * ============================================================================
+     * 四、朱熹《易學啟蒙》0–6 動爻自動判斷斷卦引擎
+     * ============================================================================
+     */
+    function getInterpretationRule(originalBinary, changedBinary, lines) {
+      const movingLines = lines.filter(l => l.isMoving);
+      const staticLines = lines.filter(l => !l.isMoving);
+      const count = movingLines.length;
+
+      const getLineLabel = (pos, isYang) => {
+        if (pos === 1) return isYang ? '初九' : '初六';
+        if (pos === 6) return isYang ? '上九' : '上六';
+        const names = ['', '', '二', '三', '四', '五'];
+        return `${isYang ? '九' : '六'}${names[pos]}`;
+      };
+
+      switch (count) {
+        case 0:
+          return {
+            movingCount: 0,
+            ruleSummary: '六爻皆靜（0 個動爻），專看【本卦卦辭】。',
+            primaryTarget: { hexagram: 'original', binary: originalBinary, type: 'judgement', lineIndex: null },
+            secondaryTarget: null
+          };
+
+        case 1: {
+          const target = movingLines[0];
+          const label = getLineLabel(target.position, target.isYang);
+          return {
+            movingCount: 1,
+            ruleSummary: `一爻動（1 個動爻），專看【本卦 ${label} 爻辭】。`,
+            primaryTarget: {
+              hexagram: 'original',
+              binary: originalBinary,
+              type: 'line',
+              lineIndex: target.position - 1,
+              label
+            },
+            secondaryTarget: null
+          };
+        }
+
+        case 2: {
+          // 兩爻動，看本卦兩動爻，以位置較高（上方）者為主
+          const lower = movingLines[0];
+          const upper = movingLines[1];
+          const upperLabel = getLineLabel(upper.position, upper.isYang);
+          const lowerLabel = getLineLabel(lower.position, lower.isYang);
+          return {
+            movingCount: 2,
+            ruleSummary: `兩爻動（2 個動爻），看本卦兩動爻，以位置較高的【${upperLabel}】為主，【${lowerLabel}】為輔。`,
+            primaryTarget: { hexagram: 'original', binary: originalBinary, type: 'line', lineIndex: upper.position - 1, label: upperLabel },
+            secondaryTarget: { hexagram: 'original', binary: originalBinary, type: 'line', lineIndex: lower.position - 1, label: lowerLabel }
+          };
+        }
+
+        case 3:
+          return {
+            movingCount: 3,
+            ruleSummary: '三爻動（3 個動爻），綜合參考【本卦卦辭】（主）與【之卦卦辭】（輔）。',
+            primaryTarget: { hexagram: 'original', binary: originalBinary, type: 'judgement', lineIndex: null },
+            secondaryTarget: { hexagram: 'changed', binary: changedBinary, type: 'judgement', lineIndex: null }
+          };
+
+        case 4: {
+          // 四爻動，看之卦兩個不變的靜爻，以位置較低（下方）者為主
+          const lowerStatic = staticLines[0];
+          const upperStatic = staticLines[1];
+          const lowerLabel = getLineLabel(lowerStatic.position, lowerStatic.changedIsYang);
+          const upperLabel = getLineLabel(upperStatic.position, upperStatic.changedIsYang);
+          return {
+            movingCount: 4,
+            ruleSummary: `四爻動（4 個動爻），看之卦兩靜爻，以位置較低的【${lowerLabel}】為主，【${upperLabel}】為輔。`,
+            primaryTarget: { hexagram: 'changed', binary: changedBinary, type: 'line', lineIndex: lowerStatic.position - 1, label: lowerLabel },
+            secondaryTarget: { hexagram: 'changed', binary: changedBinary, type: 'line', lineIndex: upperStatic.position - 1, label: upperLabel }
+          };
+        }
+
+        case 5: {
+          const onlyStatic = staticLines[0];
+          const label = getLineLabel(onlyStatic.position, onlyStatic.changedIsYang);
+          return {
+            movingCount: 5,
+            ruleSummary: `五爻動（5 個動爻），專看之卦唯一靜爻【${label} 爻辭】。`,
+            primaryTarget: { hexagram: 'changed', binary: changedBinary, type: 'line', lineIndex: onlyStatic.position - 1, label },
+            secondaryTarget: null
+          };
+        }
+
+        case 6:
+          if (originalBinary === '111111') {
+            return {
+              movingCount: 6,
+              ruleSummary: '乾卦六爻皆動（全九），專看【用九】。',
+              primaryTarget: { hexagram: 'original', binary: originalBinary, type: 'yong', lineIndex: null },
+              secondaryTarget: null
+            };
+          }
+          if (originalBinary === '000000') {
+            return {
+              movingCount: 6,
+              ruleSummary: '坤卦六爻皆動（全六），專看【用六】。',
+              primaryTarget: { hexagram: 'original', binary: originalBinary, type: 'yong', lineIndex: null },
+              secondaryTarget: null
+            };
+          }
+          return {
+            movingCount: 6,
+            ruleSummary: '六爻皆動（6 個動爻），專看【之卦卦辭】。',
+            primaryTarget: { hexagram: 'changed', binary: changedBinary, type: 'judgement', lineIndex: null },
+            secondaryTarget: null
+          };
+      }
+    }
+
+    /**
+     * ============================================================================
+     * 五、針對「所問事項」的智能白話行動建議引擎
+     * ============================================================================
+     */
+    const DOMAIN_PROFILES = [
+      {
+        id: 'career',
+        label: '事業與職場',
+        keywords: ['工作', '轉職', '跳槽', '面試', '升遷', '職場', '離職', '創業', '專案', '上司', '主管', '同事', '公司', '事業', '加薪', '求職', 'offer'],
+        contextNoun: '職場發展與工作事務',
+        auspiciousTip: '積極展現專業實力，主動爭取主導權或關鍵資源，適合推進新計畫或洽談重要合作。',
+        cautionTip: '穩紮穩打把手邊任務做到極致，多與團隊或主管溝通對齊共識，切忌急躁冒進或越級行事。',
+        warningTip: '暫緩倉促離職或大動作變動，先鞏固現有職位與人脈籌碼，低調避開辦公室政治與是非。'
+      },
+      {
+        id: 'wealth',
+        label: '財運與投資',
+        keywords: ['錢', '投資', '股票', '基金', '理財', '買房', '置產', '合夥', '生意', '創業', '營收', '虧損', '賺錢', '財務', '資金', '幣', '房地產'],
+        contextNoun: '財務規劃與投資決策',
+        auspiciousTip: '眼光精準且時機成熟，可依既定資產配置穩健布局，但仍須設定停利點、見好就收。',
+        cautionTip: '採取分批進場或保守觀望策略，務必核實帳目與合約細節，切忌聽信小道消息重倉押注。',
+        warningTip: '嚴守現金為王原則，立即停止高風險投機或借貸擴張，防範資金鏈吃緊或合夥糾紛。'
+      },
+      {
+        id: 'love',
+        label: '感情與人際',
+        keywords: ['感情', '愛情', '復合', '分手', '告白', '對象', '桃花', '結婚', '婚姻', '伴侶', '另一半', '曖昧', '追求', '離婚', '人際', '朋友', '家人'],
+        contextNoun: '感情關係與人際互動',
+        auspiciousTip: '真誠表達內心想法，主動創造見面與深度交流的契機，雙方容易達成情感共鳴與承諾。',
+        cautionTip: '給予彼此適當的呼吸空間，多傾聽少指責，用耐心與時間化解誤會，切忌逼迫對方表態。',
+        warningTip: '先將重心拉回自我照顧與情緒穩定，避免在情緒激動時做決定或翻舊帳，冷靜觀察對方真實態度。'
+      },
+      {
+        id: 'study',
+        label: '學業與考試',
+        keywords: ['考試', '學業', '升學', '研究所', '國考', '證照', '論文', '讀書', '成績', '錄取', '申請', '留學', '學習'],
+        contextNoun: '學業進修與考試表現',
+        auspiciousTip: '專注核心考點與弱項補強，維持穩定作息與自信心，臨場發揮有望超乎預期。',
+        cautionTip: '回歸基礎觀念與考古題演練，尋求師長或同儕指點盲點，切忌心浮氣躁或臨時抱佛腳。',
+        warningTip: '檢視讀書方法與時間分配是否失衡，減少外務干擾，先求穩住基本盤再圖突破。'
+      },
+      {
+        id: 'health',
+        label: '健康與生活',
+        keywords: ['健康', '身體', '生病', '手術', '治療', '養生', '睡眠', '壓力', '搬家', '旅行', '出國', '生活'],
+        contextNoun: '身心調養與生活安排',
+        auspiciousTip: '身心狀態正逐步回升，適合規律運動、調整作息或安排舒心行程，保持正向心態。',
+        cautionTip: '留意身體發出的疲勞訊號，適度減輕工作負荷，若有不適宜及早就醫檢查並遵照醫囑。',
+        warningTip: '務必以休養生息為第一優先，避免熬夜過勞或高風險活動，多與信任的親友分擔壓力。'
+      },
+      {
+        id: 'general',
+        label: '決策與整體運勢',
+        keywords: [],
+        contextNoun: '當前所關心的事務與整體局勢',
+        auspiciousTip: '順應天時地利，秉持正道果斷行動，廣結善緣並善用現有資源，可望水到渠成。',
+        cautionTip: '保持內心定力與觀察力，在細節處多下功夫，待條件更成熟時再全力推進。',
+        warningTip: '採取守勢與退一步海闊天空的智慧，先釐清問題根源、修補漏洞，靜待局勢明朗。'
+      }
+    ];
+
+    const YAO_POSITION_WISDOM = {
+      1: {
+        stage: '初爻（萌芽潛伏期）',
+        meaning: '事物剛起步、根基尚淺，外部條件尚未完全成熟。處世之道在於「潛藏蓄力、謹慎試探」，切忌過早暴露意圖或急於求成。'
+      },
+      2: {
+        stage: '二爻（中正務實期）',
+        meaning: '居下卦之中位，象徵腳踏實地、不偏不倚。處世之道在於「秉持誠信、專注本職」，以務實穩健的態度贏得信任與支持。'
+      },
+      3: {
+        stage: '三爻（轉折考驗期）',
+        meaning: '處下卦之頂、即將跨入新階段，內外環境交接最易動盪（易經所謂「三多凶」）。處世之道在於「戒慎恐懼、反覆檢視」，防範細節疏漏與人際摩擦。'
+      },
+      4: {
+        stage: '四爻（近君審慎期）',
+        meaning: '剛進入上卦、接近核心決策層，進退皆受矚目（易經所謂「四多懼」）。處世之道在於「謙遜低調、審時度勢」，多請益協調、避免功高震主或盲目衝撞。'
+      },
+      5: {
+        stage: '五爻（尊位大成期）',
+        meaning: '居上卦之中位，為全卦最具主導力與格局之位（易經所謂「五多功」）。處世之道在於「宏觀統籌、中正寬厚」，展現領導力與擔當便能成就大局。'
+      },
+      6: {
+        stage: '上爻（物極必反期）',
+        meaning: '事物發展已達頂點，盛極將衰、物極必反。處世之道在於「知止不殆、見好就收」，切忌貪得無厭或強弩之末硬撐，宜為下一階段預留退路。'
+      }
+    };
+
+    function detectQuestionDomain(questionText) {
+      if (!questionText) return DOMAIN_PROFILES[DOMAIN_PROFILES.length - 1];
+      const lowerQ = questionText.toLowerCase();
+      for (const profile of DOMAIN_PROFILES) {
+        if (profile.keywords.some(kw => lowerQ.includes(kw.toLowerCase()))) {
+          return profile;
+        }
+      }
+      return DOMAIN_PROFILES[DOMAIN_PROFILES.length - 1];
+    }
+
+    function analyzeClassicalSentiment(text) {
+      if (/元吉|大吉|無不利|吉無不利|元亨/.test(text)) {
+        return { level: 'auspicious', badge: '大吉順遂', cssClass: 'fortune-auspicious', tone: '極為有利、順勢可成' };
+      }
+      if (/吉|亨|利|悔亡|無咎|有喜|有福|有慶/.test(text) && !/凶|厲|吝/.test(text)) {
+        return { level: 'auspicious', badge: '吉象無咎', cssClass: 'fortune-auspicious', tone: '穩健向好、只要守正便無後顧之憂' };
+      }
+      if (/凶|大敗|災|滅頂|折足|終亂/.test(text)) {
+        return { level: 'warning', badge: '警訊宜慎', cssClass: 'fortune-warning', tone: '暗藏風險與阻力，必須及時止損或調整策略' };
+      }
+      return { level: 'caution', badge: '審慎磨礪', cssClass: 'fortune-caution', tone: '吉凶參半、需歷經考驗與謹慎應對後方能轉吉' };
+    }
+
+    /**
+     * 針對「所問事項」的智能白話建議引擎
+     */
+    function generatePracticalAdvice(question, originalHex, changedHex, lines, rule) {
+      const movingCount = rule.movingCount;
+      const domain = detectQuestionDomain(question);
+      const subjectPhrase = question ? `針對您所問的「${question}」` : `針對您「${domain.contextNoun}」`;
+
+      // 取得朱熹規則判定的主斷辭文字
+      const targetHex = rule.primaryTarget.hexagram === 'original' ? originalHex : changedHex;
+      let coreClassicalText = '';
+      if (rule.primaryTarget.type === 'line') {
+        coreClassicalText = targetHex.lines[rule.primaryTarget.lineIndex];
+      } else if (rule.primaryTarget.type === 'yong') {
+        coreClassicalText = targetHex.yong;
+      } else {
+        coreClassicalText = targetHex.judgement;
+      }
+
+      const sentiment = analyzeClassicalSentiment(coreClassicalText);
+
+      // 1. 局勢定調
+      const movingDesc = movingCount === 0
+        ? '六爻皆靜，代表現階段局勢穩定、無劇烈外在變數，應以本卦大局為依歸。'
+        : `本次共有 ${movingCount} 個動爻，依朱熹《易學啟蒙》斷法，應以「${rule.ruleSummary.replace(/。$/, '')}」為核心準繩。`;
+
+      const situationText = `${subjectPhrase}，本卦為《${originalHex.name}》（${originalHex.image.split('；')[0]}），當前處境呈現「${originalHex.summary.split('。')[0]}」之象；${movingDesc}整體吉凶態勢屬於「${sentiment.tone}」。`;
+
+      // 2. 核心爻辭啟示
+      let yaoInsightText = '';
+      if (rule.primaryTarget.type === 'line') {
+        const pos = rule.primaryTarget.lineIndex + 1;
+        const lineObj = lines[rule.primaryTarget.lineIndex];
+        const posWisdom = YAO_POSITION_WISDOM[pos];
+        const hexSide = rule.primaryTarget.hexagram === 'original' ? `本卦《${originalHex.name}》` : `之卦《${changedHex.name}》`;
+        const yinYangNote = lineObj.isMoving
+          ? (lineObj.isYang
+              ? '此爻老陽發動（陽極變陰），主動性強但須防「過剛易折」，見好就收方能保泰。'
+              : '此爻老陰發動（陰極變陽），局勢正由靜轉動、暗藏轉機，宜以柔克剛、順勢借力。')
+          : '此爻為多變局勢中的關鍵靜爻，代表在動盪之中唯一穩固的定海神針，宜堅守此爻原則。';
+
+        yaoInsightText = `主斷文辭為${hexSide}的「${coreClassicalText}」。第 ${pos} 爻屬於「${posWisdom.stage}」：${posWisdom.meaning}${yinYangNote}`;
+      } else if (rule.primaryTarget.type === 'yong') {
+        yaoInsightText = `六爻全動，主斷文辭為「${coreClassicalText}」。乾用九戒剛極而貴群龍無首（謙和協作），坤用六貴永貞守柔，代表局勢正處於全面翻轉的關鍵節點。`;
+      } else {
+        const hexSide = rule.primaryTarget.hexagram === 'original' ? `本卦《${originalHex.name}》` : `之卦《${changedHex.name}》`;
+        yaoInsightText = `依啟蒙斷法，本次重心在於${hexSide}卦辭「${coreClassicalText}」，白話要義為：「${targetHex.summary}」。宜從整體格局而非單一細節來佈局。`;
+      }
+
+      // 3. 針對所問事項之 3 點具體建議
+      const domainAction =
+        sentiment.level === 'auspicious' ? domain.auspiciousTip :
+        sentiment.level === 'warning' ? domain.warningTip : domain.cautionTip;
+
+      const focusPos = rule.primaryTarget.type === 'line' ? (rule.primaryTarget.lineIndex + 1) : (movingCount === 0 ? 2 : 4);
+      const timingAction = focusPos <= 2
+        ? '【時機與節奏】目前尚處於打基礎與累積能量的階段，先求「穩住陣腳、摸清全貌」，切忌在條件未成熟前貿然攤牌。'
+        : focusPos <= 4
+        ? '【溝通與分寸】目前正處於關鍵協調與轉折期，做任何決策前宜多方徵詢意見、保留迴旋空間，避免單打獨鬥或情緒化反應。'
+        : '【格局與收斂】目前局勢已漸趨明朗或接近高點，若有成果宜懂得適時鎖定利益並謙遜待人；若遇瓶頸則宜果斷轉型、另闢蹊徑。';
+
+      const mindsetAction = `【核心心法】緊扣《${originalHex.name}》大象傳「${originalHex.image.split('；')[1] || originalHex.image}」的智慧，在處理「${question || domain.label}」時，先檢視自身立場是否端正客觀，不貪求捷徑便能趨吉避凶。`;
+
+      const steps = [
+        `【行動方針】${domainAction}`,
+        timingAction,
+        mindsetAction
+      ];
+
+      // 4. 變卦趨勢提醒
+      let trendText = '';
+      if (movingCount === 0) {
+        trendText = `本次六爻皆靜，無變卦產生，代表「${question || domain.label}」在短期內將延續《${originalHex.name}》的既有軌跡發展，重點在於深化執行力與耐心守成。`;
+      } else {
+        trendText = `當本卦《${originalHex.name}》的 ${movingCount} 個動爻發生變化後，局勢將演變為之卦《${changedHex.name}》（${changedHex.summary.split('。')[0]}）。這意味著事情未來的發展方向將朝向「${changedHex.summary.split('。')[1] || changedHex.judgement}」演進，建議提前為此轉變做好準備。`;
+      }
+
+      return {
+        domainLabel: domain.label,
+        sentiment,
+        situationText,
+        yaoInsightText,
+        steps,
+        trendText
+      };
+    }
+
+    /**
+     * ============================================================================
+     * 六、介面互動控制、雙模式切換與視覺化渲染
+     * ============================================================================
+     */
+    const STORAGE_KEY = 'iching_dual_divination_history_v1';
+    const THROW_STEP_NAMES = ['初爻（第 1 擲）', '二爻（第 2 擲）', '三爻（第 3 擲）', '四爻（第 4 擲）', '五爻（第 5 擲）', '上爻（第 6 擲）'];
+
+    let activeMode = 'coins'; // 'coins' | 'numbers'
+    let currentThrows = [];   // 三枚銅錢法暫存陣列 (0~6)
+    let isAnimating = false;
+    let currentResultState = null;
+    let activeLineTab = 'original';
+
+    const questionInput = document.getElementById('questionInput');
+    const toastBox = document.getElementById('toastBox');
+    const resultSection = document.getElementById('result-section');
+
+    function showToast(msg) {
+      toastBox.textContent = msg;
+      toastBox.classList.add('show');
+      setTimeout(() => toastBox.classList.remove('show'), 3600);
+    }
+
+    function getYaoPositionName(pos, isYang) {
+      if (pos === 1) return isYang ? '初九' : '初六';
+      if (pos === 6) return isYang ? '上九' : '上六';
+      const names = ['', '', '二', '三', '四', '五'];
+      return `${isYang ? '九' : '六'}${names[pos]}`;
+    }
+
+    // ---------------- 快速主題標籤互動 ----------------
+    document.querySelectorAll('.topic-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('.topic-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        questionInput.value = chip.getAttribute('data-template');
+      });
+    });
+
+    // ---------------- 起卦方式頁籤切換 ----------------
+    function switchDivinationMode(mode) {
+      activeMode = mode;
+      toastBox.classList.remove('show');
+      document.getElementById('tabModeCoins').classList.toggle('active', mode === 'coins');
+      document.getElementById('tabModeCoins').setAttribute('aria-selected', mode === 'coins');
+      document.getElementById('tabModeNumbers').classList.toggle('active', mode === 'numbers');
+      document.getElementById('tabModeNumbers').setAttribute('aria-selected', mode === 'numbers');
+
+      document.getElementById('panelModeCoins').classList.toggle('active', mode === 'coins');
+      document.getElementById('panelModeNumbers').classList.toggle('active', mode === 'numbers');
+    }
+
+    document.getElementById('tabModeCoins').addEventListener('click', () => switchDivinationMode('coins'));
+    document.getElementById('tabModeNumbers').addEventListener('click', () => switchDivinationMode('numbers'));
+
+    // ---------------- 模式 A：三枚銅錢法控制 ----------------
+    const castStepText = document.getElementById('castStepText');
+    const coinReadout = document.getElementById('coinReadout');
+    const liveYaoSlots = document.getElementById('liveYaoSlots');
+    const tossOnceBtn = document.getElementById('tossOnceBtn');
+    const quickCastBtn = document.getElementById('quickCastBtn');
+    const resetCastBtn = document.getElementById('resetCastBtn');
+
+    function renderCoinElements(coinValues = [3, 2, 3], animate = false) {
+      coinValues.forEach((val, idx) => {
+        const wrapper = document.getElementById(`coin${idx}`);
+        if (!wrapper) return;
+        const isYang = val === 3;
+
+        if (animate) {
+          wrapper.classList.remove('flipping');
+          void wrapper.offsetWidth;
+          wrapper.classList.add('flipping');
+        }
+
+        if (isYang) {
+          wrapper.innerHTML = `
+            <div class="coin-face is-yang" title="正面（字 / 陽 = 3）">
+              <span class="coin-char top">乾</span>
+              <span class="coin-char bottom">隆</span>
+              <span class="coin-char right">通</span>
+              <span class="coin-char left">寶</span>
+              <div class="coin-square-hole">字</div>
+            </div>
+          `;
+        } else {
+          wrapper.innerHTML = `
+            <div class="coin-face is-yin" title="反面（花 / 陰 = 2）">
+              <span class="coin-char top">滿</span>
+              <span class="coin-char bottom">文</span>
+              <span class="coin-char right">寶</span>
+              <span class="coin-char left">泉</span>
+              <div class="coin-square-hole">花</div>
+            </div>
+          `;
+        }
+      });
+    }
+
+    function renderLiveYaoSlots() {
+      liveYaoSlots.innerHTML = '';
+      const posNames = ['初爻', '二爻', '三爻', '四爻', '五爻', '上爻'];
+
+      for (let i = 5; i >= 0; i--) {
+        const slot = document.createElement('div');
+        const throwData = currentThrows[i];
+        const isNext = i === currentThrows.length;
+
+        slot.className = 'live-slot' +
+          (throwData ? ' filled' : '') +
+          (throwData && throwData.isMoving ? ' is-moving' : '') +
+          (isNext ? ' is-next' : '');
+
+        if (throwData) {
+          const yaoName = getYaoPositionName(i + 1, throwData.isYang);
+          const barHtml = throwData.isYang
+            ? '<div class="yao-yang-bar" style="height:9px;"></div>'
+            : '<div class="yao-yin-part" style="height:9px;"></div><div class="yao-yin-part" style="height:9px;"></div>';
+
+          slot.innerHTML = `
+            <span class="slot-pos">${yaoName}</span>
+            <div class="slot-bar-area">${barHtml}</div>
+            <span class="slot-info">${throwData.value} · ${throwData.isMoving ? (throwData.isYang ? '○動' : '×動') : '靜爻'}</span>
+          `;
+        } else {
+          slot.innerHTML = `
+            <span class="slot-pos">${posNames[i]}</span>
+            <div class="slot-bar-area">
+              <div class="slot-placeholder">${isNext ? '◀ 待擲此爻' : '尚未起爻'}</div>
+            </div>
+            <span class="slot-info">—</span>
+          `;
+        }
+        liveYaoSlots.appendChild(slot);
+      }
+    }
+
+    function updateCastingControlsUI() {
+      const count = currentThrows.length;
+      if (count < 6) {
+        castStepText.textContent = count === 0
+          ? '準備就緒 · 誠心默念後開始第 1 擲（初爻）'
+          : `已完成 ${count} / 6 擲 · 準備進行${THROW_STEP_NAMES[count]}`;
+        tossOnceBtn.disabled = isAnimating;
+        tossOnceBtn.innerHTML = `<span>🪙 擲出${THROW_STEP_NAMES[count]}</span>`;
+        quickCastBtn.disabled = isAnimating;
+      } else {
+        castStepText.textContent = '✨ 六擲圓滿成卦！請檢視下方啟蒙斷辭與白話建議';
+        tossOnceBtn.disabled = true;
+        tossOnceBtn.innerHTML = '<span>✓ 六爻已成卦</span>';
+        quickCastBtn.disabled = true;
+      }
+    }
+
+    function handleSingleCoinToss() {
+      if (isAnimating || currentThrows.length >= 6) return;
+      isAnimating = true;
+      toastBox.classList.remove('show');
+      updateCastingControlsUI();
+
+      const singleResult = tossThreeCoins();
+      renderCoinElements(singleResult.coins, true);
+
+      setTimeout(() => {
+        currentThrows.push(singleResult);
+        isAnimating = false;
+
+        const coinDesc = singleResult.coins.map(c => (c === 3 ? '字(3)' : '花(2)')).join(' + ');
+        const stepIdx = currentThrows.length - 1;
+        coinReadout.innerHTML = `${THROW_STEP_NAMES[stepIdx]}：${coinDesc} = <strong>${singleResult.value}（${singleResult.typeLabel}）</strong>`;
+
+        renderLiveYaoSlots();
+        updateCastingControlsUI();
+
+        if (currentThrows.length === 6) {
+          executeDivinationAndRender(() => divinateByCoins(currentThrows));
+        }
+      }, 610);
+    }
+
+    function handleQuickCoinCast() {
+      if (isAnimating) return;
+      toastBox.classList.remove('show');
+      if (currentThrows.length >= 6) {
+        currentThrows = [];
+      }
+      while (currentThrows.length < 6) {
+        currentThrows.push(tossThreeCoins());
+      }
+      const lastThrow = currentThrows[5];
+      renderCoinElements(lastThrow.coins, true);
+      const coinDesc = lastThrow.coins.map(c => (c === 3 ? '字(3)' : '花(2)')).join(' + ');
+      coinReadout.innerHTML = `六擲已完成 · 上爻：${coinDesc} = <strong>${lastThrow.value}（${lastThrow.typeLabel}）</strong>`;
+
+      renderLiveYaoSlots();
+      updateCastingControlsUI();
+      executeDivinationAndRender(() => divinateByCoins(currentThrows));
+    }
+
+    function handleResetCoinCast() {
+      if (isAnimating) return;
+      currentThrows = [];
+      renderCoinElements([3, 2, 3], false);
+      coinReadout.innerHTML = '正面「字」= <strong>3</strong>（陽）· 反面「花」= <strong>2</strong>（陰）｜總和：<strong>6</strong>老陰(×動) <strong>7</strong>少陽 <strong>8</strong>少陰 <strong>9</strong>老陽(○動)';
+      renderLiveYaoSlots();
+      updateCastingControlsUI();
+      resultSection.classList.remove('visible');
+    }
+
+    tossOnceBtn.addEventListener('click', handleSingleCoinToss);
+    quickCastBtn.addEventListener('click', handleQuickCoinCast);
+    resetCastBtn.addEventListener('click', handleResetCoinCast);
+
+    // ---------------- 模式 B：先天數字起卦法控制 ----------------
+    const num1Input = document.getElementById('num1');
+    const num2Input = document.getElementById('num2');
+    const num3Input = document.getElementById('num3');
+    const liveNumPreview = document.getElementById('liveNumPreview');
+
+    function updateNumberCalcPreview() {
+      const n1 = Math.abs(Math.floor(Number(num1Input.value)));
+      const n2 = Math.abs(Math.floor(Number(num2Input.value)));
+      const n3 = Math.abs(Math.floor(Number(num3Input.value)));
+
+      if (!n1 && !n2 && !n3) {
+        liveNumPreview.innerHTML = '先天八卦序：1乾(☰) · 2兌(☱) · 3離(☲) · 4震(☳) · 5巽(☴) · 6坎(☵) · 7艮(☶) · 8坤(☷)';
+        return;
+      }
+
+      const parts = [];
+      if (n1 > 0) {
+        const lIdx = n1 % 8 === 0 ? 8 : n1 % 8;
+        const lTri = TRIGRAMS_BY_INDEX[lIdx];
+        parts.push(`下卦：${n1}÷8 餘 <strong>${lIdx} ${lTri.name}(${lTri.symbol})</strong>`);
+      }
+      if (n2 > 0) {
+        const uIdx = n2 % 8 === 0 ? 8 : n2 % 8;
+        const uTri = TRIGRAMS_BY_INDEX[uIdx];
+        parts.push(`上卦：${n2}÷8 餘 <strong>${uIdx} ${uTri.name}(${uTri.symbol})</strong>`);
+      }
+      if (n3 > 0) {
+        const mPos = n3 % 6 === 0 ? 6 : n3 % 6;
+        const posLabels = ['', '初爻', '二爻', '三爻', '四爻', '五爻', '上爻'];
+        parts.push(`動爻：${n3}÷6 餘 <strong>${mPos}（${posLabels[mPos]}動）</strong>`);
+      }
+      liveNumPreview.innerHTML = `即時餘數演算：${parts.join(' ｜ ')}`;
+    }
+
+    [num1Input, num2Input, num3Input].forEach(el => {
+      el.addEventListener('input', updateNumberCalcPreview);
+      el.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          document.getElementById('divinateNumBtn').click();
+        }
+      });
+    });
+
+    document.getElementById('randomNumBtn').addEventListener('click', () => {
+      const rand3 = () => Math.floor(Math.random() * 900) + 100;
+      num1Input.value = rand3();
+      num2Input.value = rand3();
+      num3Input.value = rand3();
+      toastBox.classList.remove('show');
+      updateNumberCalcPreview();
+    });
+
+    document.getElementById('divinateNumBtn').addEventListener('click', () => {
+      executeDivinationAndRender(() => divinateByNumbers(num1Input.value, num2Input.value, num3Input.value));
+    });
+
+    // ---------------- 統一執行起卦、渲染結果與存檔 ----------------
+    function executeDivinationAndRender(engineFn) {
+      try {
+        toastBox.classList.remove('show');
+        const result = engineFn();
+        const questionText = questionInput.value.trim();
+        renderResult(result, questionText);
+        saveHistoryRecord({
+          id: Date.now(),
+          timestamp: formatNow(),
+          question: questionText,
+          data: result
+        });
+      } catch (err) {
+        showToast(err.message);
+      }
+    }
+
+    // 繪製本卦與之卦的六爻視覺圖
+    function renderYaoStack(containerEl, lines, isChangedHexagram) {
+      containerEl.innerHTML = '';
+      for (let i = 5; i >= 0; i--) {
+        const line = lines[i];
+        const isYang = isChangedHexagram ? line.changedIsYang : line.isYang;
+        const isMoving = line.isMoving;
+
+        const row = document.createElement('div');
+        row.className = 'yao-row' + (isMoving ? ' is-moving' : '');
+
+        const posLabel = document.createElement('div');
+        posLabel.className = 'yao-pos-label';
+        posLabel.textContent = getYaoPositionName(line.position, isYang);
+
+        const graphic = document.createElement('div');
+        graphic.className = 'yao-graphic';
+        if (isYang) {
+          graphic.innerHTML = '<div class="yao-yang-bar"></div>';
+        } else {
+          graphic.innerHTML = '<div class="yao-yin-part"></div><div class="yao-yin-part"></div>';
+        }
+
+        const mark = document.createElement('div');
+        mark.className = 'yao-mark';
+        if (!isChangedHexagram) {
+          if (isMoving) {
+            mark.textContent = line.isYang ? '○ 老陽(9)' : '× 老陰(6)';
+          } else {
+            mark.textContent = line.isYang ? '少陽(7)' : '少陰(8)';
+          }
+        } else {
+          mark.textContent = isMoving ? '← 動爻所變' : '靜爻不變';
+        }
+
+        row.appendChild(posLabel);
+        row.appendChild(graphic);
+        row.appendChild(mark);
+        containerEl.appendChild(row);
+      }
+    }
+
+    // 渲染完整解卦結果區塊
+    function renderResult(data, questionText) {
+      const origHex = ICHING_64[data.originalBinary];
+      const chgHex = ICHING_64[data.changedBinary];
+      const rule = data.rule;
+      const advice = generatePracticalAdvice(questionText, origHex, chgHex, data.lines, rule);
+
+      currentResultState = { data, questionText, advice };
+
+      // 標示起卦方式與所問事項
+      document.getElementById('resultMethodPill').textContent = data.methodName;
+      const qTag = document.getElementById('resultQuestionTag');
+      qTag.textContent = questionText ? `所問：${questionText}` : '（未填寫特定事項）';
+      document.getElementById('calcFormulaText').textContent = data.formulaSummary;
+
+      // 朱熹《易學啟蒙》斷卦規則與目標文辭（支援主斷與輔斷）
+      document.getElementById('ruleSummaryText').textContent = rule.ruleSummary;
+      const quotesStack = document.getElementById('quotesStack');
+      quotesStack.innerHTML = '';
+
+      const buildQuoteBoxHtml = (target, roleTag, isSecondary = false) => {
+        const hex = target.hexagram === 'original' ? origHex : chgHex;
+        const hexTitle = target.hexagram === 'original' ? `本卦《${origHex.name}》` : `之卦《${chgHex.name}》`;
+        let label = '';
+        let originalText = '';
+        let hintText = '';
+
+        if (target.type === 'line') {
+          label = `${roleTag}${hexTitle} · ${target.label} 爻辭`;
+          originalText = hex.lines[target.lineIndex];
+          hintText = `所屬卦義：${hex.summary}`;
+        } else if (target.type === 'yong') {
+          label = `${roleTag}${hexTitle} · 特別斷辭`;
+          originalText = hex.yong;
+          hintText = `所屬卦義：${hex.summary}`;
+        } else {
+          label = `${roleTag}${hexTitle} · 卦辭`;
+          originalText = hex.judgement;
+          hintText = `白話提要：${hex.summary}`;
+        }
+
+        return `
+          <div class="highlighted-quote-box ${isSecondary ? 'is-secondary' : ''}">
+            <span class="quote-label">${label}</span>
+            <p class="quote-original">${originalText}</p>
+            <p class="quote-hint">${hintText}</p>
+          </div>
+        `;
+      };
+
+      const primaryRole = rule.secondaryTarget ? '【主斷】' : '【核心斷辭】';
+      quotesStack.innerHTML += buildQuoteBoxHtml(rule.primaryTarget, primaryRole, false);
+      if (rule.secondaryTarget) {
+        quotesStack.innerHTML += buildQuoteBoxHtml(rule.secondaryTarget, '【輔斷】', true);
+      }
+
+      // 渲染針對所問事項的白話行動建議卡片
+      document.getElementById('adviceDomainTag').textContent = `領域識別：${advice.domainLabel}`;
+      const badgeEl = document.getElementById('adviceFortuneBadge');
+      badgeEl.textContent = advice.sentiment.badge;
+      badgeEl.className = `fortune-badge ${advice.sentiment.cssClass}`;
+
+      document.getElementById('adviceSituationText').textContent = advice.situationText;
+      document.getElementById('adviceYaoInsightText').textContent = advice.yaoInsightText;
+      document.getElementById('adviceActionTitle').textContent = questionText
+        ? `【針對「${questionText}」之具體建議】`
+        : '【針對當前處境之具體建議】';
+
+      const stepsUl = document.getElementById('adviceActionSteps');
+      stepsUl.innerHTML = '';
+      advice.steps.forEach(stepStr => {
+        const li = document.createElement('li');
+        li.textContent = stepStr;
+        stepsUl.appendChild(li);
+      });
+
+      document.getElementById('adviceTrendText').textContent = advice.trendText;
+
+      // 填充本卦資訊
+      document.getElementById('origHexName').textContent = `第${origHex.no}卦 · ${origHex.name}`;
+      document.getElementById('origHexTrigrams').textContent = `${origHex.trigrams}（${data.upperTrigram.symbol}上 ${data.lowerTrigram.symbol}下）`;
+      document.getElementById('origJudgement').textContent = origHex.judgement;
+      document.getElementById('origImage').textContent = origHex.image;
+      document.getElementById('origSummary').textContent = origHex.summary;
+      renderYaoStack(document.getElementById('origYaoStack'), data.lines, false);
+
+      // 填充之卦資訊
+      const chgLowerTri = TRIGRAMS_BY_BINARY[data.changedBinary.slice(0, 3)];
+      const chgUpperTri = TRIGRAMS_BY_BINARY[data.changedBinary.slice(3, 6)];
+      document.getElementById('chgHexRoleLabel').textContent = rule.movingCount === 0
+        ? '之卦（六爻皆靜 · 卦象不變）'
+        : '之卦 / 變卦（未來趨勢與演變）';
+      document.getElementById('chgHexName').textContent = `第${chgHex.no}卦 · ${chgHex.name}`;
+      document.getElementById('chgHexTrigrams').textContent = `${chgHex.trigrams}（${chgUpperTri.symbol}上 ${chgLowerTri.symbol}下）`;
+      document.getElementById('chgJudgement').textContent = chgHex.judgement;
+      document.getElementById('chgImage').textContent = chgHex.image;
+      document.getElementById('chgSummary').textContent = chgHex.summary;
+      renderYaoStack(document.getElementById('chgYaoStack'), data.lines, true);
+
+      // 高亮卦辭框
+      const origTextsBox = document.getElementById('origHexTexts');
+      const chgTextsBox = document.getElementById('chgHexTexts');
+      const highlightOrig =
+        (rule.primaryTarget.type === 'judgement' && rule.primaryTarget.hexagram === 'original') ||
+        (rule.secondaryTarget && rule.secondaryTarget.type === 'judgement' && rule.secondaryTarget.hexagram === 'original');
+      const highlightChg =
+        (rule.primaryTarget.type === 'judgement' && rule.primaryTarget.hexagram === 'changed') ||
+        (rule.secondaryTarget && rule.secondaryTarget.type === 'judgement' && rule.secondaryTarget.hexagram === 'changed');
+      origTextsBox.classList.toggle('target-highlight', Boolean(highlightOrig));
+      chgTextsBox.classList.toggle('target-highlight', Boolean(highlightChg));
+
+      // 預設展開主斷辭所屬的六爻列表分頁
+      activeLineTab = rule.primaryTarget.hexagram;
+      updateLineTabsUI();
+      renderAllLinesList();
+
+      resultSection.classList.add('visible');
+      resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function updateLineTabsUI() {
+      document.getElementById('tabOrigBtn').classList.toggle('active', activeLineTab === 'original');
+      document.getElementById('tabChgBtn').classList.toggle('active', activeLineTab === 'changed');
+    }
+
+    function renderAllLinesList() {
+      if (!currentResultState) return;
+      const { data } = currentResultState;
+      const isOrig = activeLineTab === 'original';
+      const hex = ICHING_64[isOrig ? data.originalBinary : data.changedBinary];
+      const rule = data.rule;
+      const listEl = document.getElementById('lineDetailList');
+      listEl.innerHTML = '';
+
+      hex.lines.forEach((lineText, idx) => {
+        const li = document.createElement('li');
+        li.className = 'line-detail-item';
+
+        const isPrimaryTarget =
+          rule.primaryTarget.type === 'line' &&
+          rule.primaryTarget.hexagram === activeLineTab &&
+          rule.primaryTarget.lineIndex === idx;
+
+        const isSecondaryTarget =
+          rule.secondaryTarget &&
+          rule.secondaryTarget.type === 'line' &&
+          rule.secondaryTarget.hexagram === activeLineTab &&
+          rule.secondaryTarget.lineIndex === idx;
+
+        const isMovingLine = data.lines[idx].isMoving;
+
+        if (isPrimaryTarget) {
+          li.classList.add('is-target-primary');
+        } else if (isSecondaryTarget) {
+          li.classList.add('is-target-secondary');
+        }
+
+        let badgeHtml = '';
+        if (isPrimaryTarget) {
+          badgeHtml += '<span class="line-pill pill-primary">★ 【主斷】焦點爻辭</span>';
+        }
+        if (isSecondaryTarget) {
+          badgeHtml += '<span class="line-pill pill-secondary">☆ 【輔斷】參考爻辭</span>';
+        }
+        if (isMovingLine) {
+          badgeHtml += `<span class="line-pill pill-moving">${isOrig ? '動爻' : '變爻'}</span>`;
+        }
+
+        li.innerHTML = `<span>${lineText}</span>${badgeHtml}`;
+        listEl.appendChild(li);
+      });
+    }
+
+    document.getElementById('tabOrigBtn').addEventListener('click', () => {
+      activeLineTab = 'original';
+      updateLineTabsUI();
+      renderAllLinesList();
+    });
+
+    document.getElementById('tabChgBtn').addEventListener('click', () => {
+      activeLineTab = 'changed';
+      updateLineTabsUI();
+      renderAllLinesList();
+    });
+
+    // 一鍵複製完整解卦報告（使用 document.execCommand 相容 iFrame 與手機 Safari）
+    function copyTextToClipboard(text, onSuccess) {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand('copy');
+        if (onSuccess) onSuccess();
+      } catch (e) {
+        showToast('無法自動複製，請手動選取文字複製。');
+      } finally {
+        document.body.removeChild(textarea);
+      }
+    }
+
+    document.getElementById('copyReportBtn').addEventListener('click', () => {
+      if (!currentResultState) return;
+      const { data, questionText, advice } = currentResultState;
+      const origHex = ICHING_64[data.originalBinary];
+      const chgHex = ICHING_64[data.changedBinary];
+
+      const reportLines = [
+        `【周易雙法起卦 · 占卜與行動建議報告】`,
+        `起卦方式：${data.methodName}（${data.formulaSummary}）`,
+        `所問事項：${questionText || '近期整體運勢與處事方向'}`,
+        `啟蒙斷法：${data.rule.ruleSummary}`,
+        `本卦：第${origHex.no}卦 ${origHex.name}（${origHex.judgement}）`,
+        `之卦：第${chgHex.no}卦 ${chgHex.name}（${chgHex.judgement}）`,
+        ``,
+        `◆ 局勢定調（${advice.sentiment.badge}）：`,
+        advice.situationText,
+        ``,
+        `◆ 核心爻辭啟示：`,
+        advice.yaoInsightText,
+        ``,
+        `◆ 針對所問事項之具體建議：`,
+        ...advice.steps.map((s, i) => `${i + 1}. ${s}`),
+        ``,
+        `◆ 變卦趨勢提醒：`,
+        advice.trendText
+      ];
+
+      copyTextToClipboard(reportLines.join('\n'), () => {
+        const statusEl = document.getElementById('copyStatusText');
+        statusEl.classList.add('show');
+        setTimeout(() => statusEl.classList.remove('show'), 2500);
+      });
+    });
+
+    /**
+     * ============================================================================
+     * 七、localStorage 歷史紀錄管理（保存、回顧、匯出與清除）
+     * ============================================================================
+     */
+    function loadHistory() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveHistoryRecord(record) {
+      try {
+        const list = loadHistory();
+        list.unshift(record);
+        if (list.length > 60) list.length = 60;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+        updateHistoryBadge();
+      } catch (e) {}
+    }
+
+    function updateHistoryBadge() {
+      document.getElementById('historyCountBadge').textContent = loadHistory().length;
+    }
+
+    function renderHistoryDrawer() {
+      const list = loadHistory();
+      const container = document.getElementById('historyListContainer');
+      container.innerHTML = '';
+
+      if (list.length === 0) {
+        container.innerHTML = '<div class="empty-history">尚無卜卦紀錄。<br>起卦後將自動為您保存於此處。</div>';
+        return;
+      }
+
+      list.forEach((item) => {
+        const origHex = ICHING_64[item.data.originalBinary];
+        const chgHex = ICHING_64[item.data.changedBinary];
+        const movingCount = item.data.rule.movingCount;
+        const card = document.createElement('div');
+        card.className = 'history-item';
+        card.innerHTML = `
+          <div class="history-item-top">
+            <span>${item.timestamp}</span>
+            <span class="history-method-tag">${item.data.methodName}</span>
+          </div>
+          <div class="history-question">${escapeHtml(item.question || '（無題卜卦）')}</div>
+          <div class="history-hex-summary">
+            ${origHex.name} ${movingCount > 0 ? `之 ${chgHex.name}（${movingCount}爻動）` : '（六爻皆靜）'}
+          </div>
+        `;
+        card.addEventListener('click', () => {
+          questionInput.value = item.question || '';
+          if (item.data.method === 'numbers' && item.data.inputs) {
+            switchDivinationMode('numbers');
+            num1Input.value = item.data.inputs[0];
+            num2Input.value = item.data.inputs[1];
+            num3Input.value = item.data.inputs[2];
+            updateNumberCalcPreview();
+          } else {
+            switchDivinationMode('coins');
+            currentThrows = item.data.lines.map(l => ({
+              coins: l.coins || [3, 2, 2],
+              value: l.value,
+              isYang: l.isYang,
+              isMoving: l.isMoving,
+              changedIsYang: l.changedIsYang
+            }));
+            renderCoinElements(currentThrows[5].coins, false);
+            renderLiveYaoSlots();
+            updateCastingControlsUI();
+          }
+          renderResult(item.data, item.question);
+          closeDrawer();
+        });
+        container.appendChild(card);
+      });
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function formatNow() {
+      const d = new Date();
+      const pad = n => String(n).padStart(2, '0');
+      return `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+
+    const drawerBackdrop = document.getElementById('drawerBackdrop');
+    const historyDrawer = document.getElementById('historyDrawer');
+
+    function openDrawer() {
+      renderHistoryDrawer();
+      drawerBackdrop.classList.add('open');
+      historyDrawer.classList.add('open');
+    }
+
+    function closeDrawer() {
+      drawerBackdrop.classList.remove('open');
+      historyDrawer.classList.remove('open');
+    }
+
+    document.getElementById('openHistoryBtn').addEventListener('click', openDrawer);
+    document.getElementById('closeHistoryBtn').addEventListener('click', closeDrawer);
+    drawerBackdrop.addEventListener('click', closeDrawer);
+
+    document.getElementById('exportHistoryBtn').addEventListener('click', () => {
+      const list = loadHistory();
+      if (list.length === 0) {
+        showToast('目前尚無可匯出的卜卦紀錄。');
+        return;
+      }
+      const summaryLines = list.map((item, i) => {
+        const origHex = ICHING_64[item.data.originalBinary];
+        const chgHex = ICHING_64[item.data.changedBinary];
+        return `${i + 1}. [${item.timestamp}]（${item.data.methodName}）所問：${item.question || '無題'} ｜ 結果：${origHex.name} → ${chgHex.name}（${item.data.rule.ruleSummary}）`;
+      });
+      copyTextToClipboard(`【周易雙法起卦 · 歷史卜卦總覽】\n` + summaryLines.join('\n'), () => {
+        showToast('已將全部歷史卜卦紀錄複製到剪貼簿！');
+      });
+    });
+
+    document.getElementById('clearHistoryBtn').addEventListener('click', () => {
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+        updateHistoryBadge();
+        renderHistoryDrawer();
+      } catch (e) {}
+    });
+
+    // 頁面初始化
+    window.addEventListener('DOMContentLoaded', () => {
+      renderCoinElements([3, 2, 3], false);
+      renderLiveYaoSlots();
+      updateCastingControlsUI();
+      updateHistoryBadge();
+    });
+  </script>
+</body>
+</html>
